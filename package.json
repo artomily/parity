@@ -1,0 +1,23 @@
+{
+  "name": "parity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [],
+  "scripts": {
+    "compact": "compact compile contracts/parity.compact managed",
+    "test": "vitest run",
+    "test:compile": "npm run compact && vitest run",
+    "typecheck": "tsc --noEmit",
+    "deploy:preprod": "tsx scripts/deploy-cli.ts",
+    "deploy:preview": "MIDNIGHT_NETWORK=preview tsx scripts/deploy-cli.ts"
+  },
+  "devDependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.16.0",
+    "@midnight-ntwrk/midnight-js-network-id": "^4.1.1",
+    "@types/node": "^20",
+    "tsx": "^4.19.0",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  }
+}
