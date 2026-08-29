@@ -1,0 +1,377 @@
+// =============================================================================
+// Parity — verifiable pay-gap reporting where no salary is ever disclosed
+// =============================================================================
+//
+// PRIVACY MODEL
+// -------------
+//   PUBLIC (on-chain ledger, visible to everyone):
+//     * reportingPeriod  — which filing this deployed contract is for
+//     * jobCategory      — the job category this filing covers
+//     * payrollRoot      — Merkle root committing to the payroll snapshot
+//     * committedCount   — how many records the employer committed
+//     * groupACount / groupBCount     — headcount per pay group
+//     * groupAPaySum / groupBPaySum   — AGGREGATE pay per group
+//     * confirmations / disputes      — the coverage counters
+//     * nullifiers       — spent employee action nullifiers
+//
+//   PRIVATE (never leaves the machine that supplies it):
+//     * employerSalaries()/employerGroups()/employerIds()/employerActive()
+//         — the full payroll snapshot, supplied by the employer
+//     * employeeSecretKey(), employeeSalary(), employeeIsGroupA()
+//         — the worker's identity key and their own payslip values
+//     * merkleSiblings()/merklePathIndices() — the worker's private path
+//     * employerClaimedRecordHash() — what the employer filed about this worker
+//
+//   WHAT IS PROVED WITHOUT REVEALING IT:
+//     1. EMPLOYER: "the aggregate figures I am publishing were computed from
+//        exactly the payroll snapshot committed in `payrollRoot`." Individual
+//        salaries are summed inside the circuit; only the per-group SUM and
+//        COUNT are disclosed. The employer cannot publish figures inconsistent
+//        with what it committed to, nor recompute after the fact.
+//     2. EMPLOYEE: "the record the employer filed under my identity matches my
+//        own payslip" — by rebuilding their own leaf from private values and
+//        proving a Merkle path to the public root, without revealing which
+//        leaf is theirs. A worker whose filed record does NOT match can prove
+//        that instead, via `disputeRecord`.
+//
+// WHY THIS SHAPE: an employer's self-reported pay gap is unauditable today,
+// because auditing it would require the individual salaries that data
+// protection law forbids disclosing. Here the arithmetic is proved, and the
+// data behind it is attested by the people it describes — so the public
+// coverage counters ("812 of 847 records confirmed by the worker") measure how
+// much of the filing is independently backed, without exposing anyone's pay.
+//
+// SCOPE OF PRIVACY (deliberate, documented limits):
+//   * Aggregates leak at small N: with one worker in a group, the group SUM is
+//     that worker's salary. MIN_GROUP below therefore refuses to publish for
+//     groups smaller than 3.
+//   * A confirmation reveals that *someone* confirmed, never who. The pay group
+//     of the confirming worker is NOT disclosed, so confirmations are not
+//     bucketed by gender.
+//   * One job category per deployed contract, one snapshot, depth-4 tree
+//     (16 records). Sized for a working MVP, not production headcount.
+//
+// The disclose(...) calls below are the complete, auditable set of points where
+// private values become public. Individual salaries are never among them.
+// =============================================================================
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// A group smaller than this is not statistically publishable: the aggregate
+// would identify its members. Filings below it are rejected outright.
+export circuit minGroup(): Uint<8> { return 3; }
+
+// ---- Public ledger state ----------------------------------------------------
+export ledger reportingPeriod: Bytes<32>;
+export ledger jobCategory: Bytes<32>;
+export ledger payrollRoot: Bytes<32>;
+export ledger payrollCommitted: Boolean;
+export ledger committedCount: Uint<32>;
+export ledger groupACount: Uint<16>;
+export ledger groupBCount: Uint<16>;
+export ledger groupAPaySum: Uint<64>;
+export ledger groupBPaySum: Uint<64>;
+export ledger confirmations: Counter;
+export ledger disputes: Counter;
+export ledger nullifiers: Set<Bytes<32>>;
+
+// Both constructor arguments are public by design — everyone is meant to know
+// which filing and which job category this contract instance covers.
+constructor(initialPeriod: Bytes<32>, initialCategory: Bytes<32>) {
+  reportingPeriod = disclose(initialPeriod);
+  jobCategory = disclose(initialCategory);
+  payrollCommitted = false;
+}
+
+// ---- Private witnesses ------------------------------------------------------
+// Employer side: the payroll snapshot. Supplied once, at commit time.
+witness employerIds(): Vector<16, Bytes<32>>;
+witness employerSalaries(): Vector<16, Uint<32>>;
+witness employerGroupA(): Vector<16, Boolean>;
+witness employerActive(): Vector<16, Boolean>;
+
+// Employee side: the worker's own identity and payslip.
+witness employeeSecretKey(): Bytes<32>;
+witness employeeSalary(): Uint<32>;
+witness employeeIsGroupA(): Boolean;
+witness merkleSiblings(): Vector<4, Bytes<32>>;
+witness merklePathIndices(): Vector<4, Boolean>;
+
+// For disputes: the record hash the employer actually filed for this worker.
+witness employerClaimedRecordHash(): Bytes<32>;
+
+// ---- Pure helpers -----------------------------------------------------------
+
+// Commitment to a worker's identity key.
+export circuit idCommitment(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "parity:id:"), sk]);
+}
+
+// Commitment to the *contents* of a pay record, separately from identity, so a
+// dispute can prove "the record filed under my identity is not my payslip"
+// without ever revealing either value.
+export circuit groupTag(isGroupA: Boolean): Bytes<32> {
+  if (isGroupA) {
+    return pad(32, "parity:groupA:");
+  } else {
+    return pad(32, "parity:groupB:");
+  }
+}
+
+export circuit recordHash(salary: Uint<32>, isGroupA: Boolean): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "parity:rec:"), groupTag(isGroupA), salaryBytes(salary)]
+  );
+}
+
+// Widen a salary into the 32-byte field the hash consumes.
+export circuit salaryBytes(salary: Uint<32>): Bytes<32> {
+  return persistentHash<Uint<32>>(salary);
+}
+
+// A payroll leaf binds an identity to the record filed under it.
+export circuit payrollLeaf(id: Bytes<32>, rec: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "parity:leaf:"), id, rec]);
+}
+
+// An unused slot in a fixed-size tree. Distinct from any real leaf.
+export circuit emptyLeaf(): Bytes<32> {
+  return persistentHash<Vector<1, Bytes<32>>>([pad(32, "parity:empty:")]);
+}
+
+// Combine two nodes, domain-separated so node and leaf hashes never collide.
+export circuit hashNode(left: Bytes<32>, right: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "parity:node:"), left, right]);
+}
+
+// One step up a worker's private path, in the correct left/right order.
+export circuit hashLevel(isRight: Boolean, current: Bytes<32>, sibling: Bytes<32>): Bytes<32> {
+  if (isRight) {
+    return hashNode(sibling, current);
+  } else {
+    return hashNode(current, sibling);
+  }
+}
+
+// Recompute the root from a worker's own leaf and their private path. Pure:
+// it touches only its arguments, never the ledger or a witness call.
+export circuit computeRoot(
+  leaf: Bytes<32>,
+  siblings: Vector<4, Bytes<32>>,
+  indices: Vector<4, Boolean>
+): Bytes<32> {
+  const h0 = hashLevel(indices[0], leaf, siblings[0]);
+  const h1 = hashLevel(indices[1], h0, siblings[1]);
+  const h2 = hashLevel(indices[2], h1, siblings[2]);
+  const h3 = hashLevel(indices[3], h2, siblings[3]);
+  return h3;
+}
+
+// Nullifier bound to both the worker's key and this reporting period, so one
+// worker gets one action per filing, and the same worker in a *different*
+// period produces an unlinkable nullifier (year-over-year filings cannot be
+// joined to track an individual's pay history).
+export circuit deriveNullifier(period: Bytes<32>, sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "parity:nul:"), period, sk]);
+}
+
+// ---- Transition: employer commits the payroll AND its aggregates ------------
+// The root and the published figures are computed in the SAME circuit from the
+// SAME private snapshot, which is what makes the figures non-forgeable: there
+// is no step where the employer could compute a gap from one dataset and
+// commit a different one.
+export circuit commitPayroll(): [] {
+  assert(!payrollCommitted, "This filing has already committed its payroll");
+
+  const ids = employerIds();
+  const sal = employerSalaries();
+  const grpA = employerGroupA();
+  const active = employerActive();
+
+  // Build the 16 leaves. An inactive slot becomes the empty-leaf constant.
+  const l0 = slotLeaf(active[0], ids[0], sal[0], grpA[0]);
+  const l1 = slotLeaf(active[1], ids[1], sal[1], grpA[1]);
+  const l2 = slotLeaf(active[2], ids[2], sal[2], grpA[2]);
+  const l3 = slotLeaf(active[3], ids[3], sal[3], grpA[3]);
+  const l4 = slotLeaf(active[4], ids[4], sal[4], grpA[4]);
+  const l5 = slotLeaf(active[5], ids[5], sal[5], grpA[5]);
+  const l6 = slotLeaf(active[6], ids[6], sal[6], grpA[6]);
+  const l7 = slotLeaf(active[7], ids[7], sal[7], grpA[7]);
+  const l8 = slotLeaf(active[8], ids[8], sal[8], grpA[8]);
+  const l9 = slotLeaf(active[9], ids[9], sal[9], grpA[9]);
+  const l10 = slotLeaf(active[10], ids[10], sal[10], grpA[10]);
+  const l11 = slotLeaf(active[11], ids[11], sal[11], grpA[11]);
+  const l12 = slotLeaf(active[12], ids[12], sal[12], grpA[12]);
+  const l13 = slotLeaf(active[13], ids[13], sal[13], grpA[13]);
+  const l14 = slotLeaf(active[14], ids[14], sal[14], grpA[14]);
+  const l15 = slotLeaf(active[15], ids[15], sal[15], grpA[15]);
+
+  const n0 = hashNode(l0, l1);
+  const n1 = hashNode(l2, l3);
+  const n2 = hashNode(l4, l5);
+  const n3 = hashNode(l6, l7);
+  const n4 = hashNode(l8, l9);
+  const n5 = hashNode(l10, l11);
+  const n6 = hashNode(l12, l13);
+  const n7 = hashNode(l14, l15);
+
+  const m0 = hashNode(n0, n1);
+  const m1 = hashNode(n2, n3);
+  const m2 = hashNode(n4, n5);
+  const m3 = hashNode(n6, n7);
+
+  const p0 = hashNode(m0, m1);
+  const p1 = hashNode(m2, m3);
+  const root = hashNode(p0, p1);
+
+  // Aggregate inside the circuit. Individual salaries are read here but never
+  // disclosed — only the per-group totals leave as public values.
+  const aSum = sumGroup(true, sal, grpA, active);
+  const bSum = sumGroup(false, sal, grpA, active);
+  const aCount = countGroup(true, grpA, active);
+  const bCount = countGroup(false, grpA, active);
+
+  // Refuse to publish an aggregate small enough to identify its members.
+  assert(aCount >= minGroup(), "Group A is too small to report without identifying its members");
+  assert(bCount >= minGroup(), "Group B is too small to report without identifying its members");
+
+  payrollRoot = disclose(root);
+  groupAPaySum = disclose(aSum);
+  groupBPaySum = disclose(bSum);
+  groupACount = disclose(aCount);
+  groupBCount = disclose(bCount);
+  committedCount = disclose(aCount + bCount);
+  payrollCommitted = true;
+}
+
+// A slot's leaf: a real record if active, the empty constant otherwise.
+export circuit slotLeaf(
+  active: Boolean, id: Bytes<32>, salary: Uint<32>, isGroupA: Boolean
+): Bytes<32> {
+  if (active) {
+    return payrollLeaf(id, recordHash(salary, isGroupA));
+  } else {
+    return emptyLeaf();
+  }
+}
+
+// ---- Transition: a worker confirms the record filed under their identity ----
+export circuit confirmRecord(): [] {
+  assert(payrollCommitted, "No payroll has been committed for this filing yet");
+
+  const sk = employeeSecretKey();
+
+  // Rebuild the worker's own leaf from THEIR OWN payslip values. If the
+  // employer filed anything different, this leaf will not be in the tree and
+  // the path check below fails — which is exactly the signal `disputeRecord`
+  // exists to record.
+  const myLeaf = payrollLeaf(
+    idCommitment(sk),
+    recordHash(employeeSalary(), employeeIsGroupA())
+  );
+  const computed = computeRoot(myLeaf, merkleSiblings(), merklePathIndices());
+  assert(computed == payrollRoot, "The filed record does not match these payslip values");
+
+  // One action per worker per filing. Only the one-way hash is disclosed.
+  const n = disclose(deriveNullifier(reportingPeriod, sk));
+  assert(!nullifiers.member(n), "This worker has already acted on this filing");
+  nullifiers.insert(n);
+
+  // Note what is NOT disclosed here: the worker's pay group. A confirmation
+  // reveals that someone confirmed, never who, and never which group.
+  confirmations.increment(1);
+}
+
+// ---- Transition: a worker disputes the record filed under their identity ----
+// Proves "a record IS filed under my identity, and its contents are not my
+// payslip" — without revealing either the filed values or the real ones.
+export circuit disputeRecord(): [] {
+  assert(payrollCommitted, "No payroll has been committed for this filing yet");
+
+  const sk = employeeSecretKey();
+  const claimed = employerClaimedRecordHash();
+
+  // The disputed record must genuinely be in the committed tree under this
+  // worker's identity — otherwise anyone could inflate the dispute count.
+  const filedLeaf = payrollLeaf(idCommitment(sk), claimed);
+  const computed = computeRoot(filedLeaf, merkleSiblings(), merklePathIndices());
+  assert(computed == payrollRoot, "No record under this identity in the committed payroll");
+
+  // ...and it must actually differ from what the worker was really paid.
+  const mine = recordHash(employeeSalary(), employeeIsGroupA());
+  assert(claimed != mine, "The filed record matches these payslip values — nothing to dispute");
+
+  const n = disclose(deriveNullifier(reportingPeriod, sk));
+  assert(!nullifiers.member(n), "This worker has already acted on this filing");
+  nullifiers.insert(n);
+
+  disputes.increment(1);
+}
+
+// ---- Aggregation helpers ----------------------------------------------------
+export circuit sumGroup(
+  wantGroupA: Boolean,
+  sal: Vector<16, Uint<32>>,
+  grpA: Vector<16, Boolean>,
+  active: Vector<16, Boolean>
+): Uint<64> {
+  return addSlot(wantGroupA, sal[0], grpA[0], active[0])
+    + addSlot(wantGroupA, sal[1], grpA[1], active[1])
+    + addSlot(wantGroupA, sal[2], grpA[2], active[2])
+    + addSlot(wantGroupA, sal[3], grpA[3], active[3])
+    + addSlot(wantGroupA, sal[4], grpA[4], active[4])
+    + addSlot(wantGroupA, sal[5], grpA[5], active[5])
+    + addSlot(wantGroupA, sal[6], grpA[6], active[6])
+    + addSlot(wantGroupA, sal[7], grpA[7], active[7])
+    + addSlot(wantGroupA, sal[8], grpA[8], active[8])
+    + addSlot(wantGroupA, sal[9], grpA[9], active[9])
+    + addSlot(wantGroupA, sal[10], grpA[10], active[10])
+    + addSlot(wantGroupA, sal[11], grpA[11], active[11])
+    + addSlot(wantGroupA, sal[12], grpA[12], active[12])
+    + addSlot(wantGroupA, sal[13], grpA[13], active[13])
+    + addSlot(wantGroupA, sal[14], grpA[14], active[14])
+    + addSlot(wantGroupA, sal[15], grpA[15], active[15]);
+}
+
+export circuit addSlot(
+  wantGroupA: Boolean, salary: Uint<32>, isGroupA: Boolean, active: Boolean
+): Uint<32> {
+  if (active && (isGroupA == wantGroupA)) {
+    return salary;
+  } else {
+    return 0;
+  }
+}
+
+export circuit countGroup(
+  wantGroupA: Boolean,
+  grpA: Vector<16, Boolean>,
+  active: Vector<16, Boolean>
+): Uint<16> {
+  return countSlot(wantGroupA, grpA[0], active[0])
+    + countSlot(wantGroupA, grpA[1], active[1])
+    + countSlot(wantGroupA, grpA[2], active[2])
+    + countSlot(wantGroupA, grpA[3], active[3])
+    + countSlot(wantGroupA, grpA[4], active[4])
+    + countSlot(wantGroupA, grpA[5], active[5])
+    + countSlot(wantGroupA, grpA[6], active[6])
+    + countSlot(wantGroupA, grpA[7], active[7])
+    + countSlot(wantGroupA, grpA[8], active[8])
+    + countSlot(wantGroupA, grpA[9], active[9])
+    + countSlot(wantGroupA, grpA[10], active[10])
+    + countSlot(wantGroupA, grpA[11], active[11])
+    + countSlot(wantGroupA, grpA[12], active[12])
+    + countSlot(wantGroupA, grpA[13], active[13])
+    + countSlot(wantGroupA, grpA[14], active[14])
+    + countSlot(wantGroupA, grpA[15], active[15]);
+}
+
+export circuit countSlot(wantGroupA: Boolean, isGroupA: Boolean, active: Boolean): Uint<8> {
+  if (active && (isGroupA == wantGroupA)) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
