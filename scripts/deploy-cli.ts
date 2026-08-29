@@ -1,0 +1,506 @@
+// Headless CLI deploy for Parity, bypassing the browser wallet extension
+// entirely. Modeled on the wallet-building pattern in Midnight's official
+// example-counter CLI (github.com/midnightntwrk/example-counter), adapted to
+// build a fresh (or seed-restored) wallet directly via @midnight-ntwrk/wallet-sdk-*
+// instead of talking to Lace/1AM's injected browser API.
+//
+// This exists because the browser wallet extension can get stuck at
+// "syncing..." forever on an idle Preprod chain (a known, still-unresolved
+// wallet-SDK issue — see the Midnight forum thread "Wallet syncing 50% for
+// 3 days now"). Running headless doesn't dodge that root cause since it uses
+// the exact same isSynced/state() mechanism under the hood — but it does let
+// us apply an explicit timeout, so a stuck sync fails loudly instead of
+// hanging the terminal silently.
+//
+// Usage:
+//   MIDNIGHT_NETWORK=preprod|preview npm run deploy:preprod   (defaults to preprod)
+// A seed is auto-generated and saved to .env on first run per network (as
+// MIDNIGHT_PREPROD_SEED or MIDNIGHT_PREVIEW_SEED), then reused automatically
+// on every later run — so a stuck sync/retry never orphans a funded wallet.
+import path from "node:path";
+import fs from "node:fs";
+import { WebSocket } from "ws";
+import * as Rx from "rxjs";
+import * as ledger from "@midnight-ntwrk/ledger-v8";
+import { unshieldedToken } from "@midnight-ntwrk/ledger-v8";
+import { deployContract } from "@midnight-ntwrk/midnight-js-contracts";
+import { httpClientProofProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
+import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
+import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
+import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
+import type { MidnightProviders, UnboundTransaction } from "@midnight-ntwrk/midnight-js-types";
+import * as CompiledContract from "@midnight-ntwrk/compact-js/effect/CompiledContract";
+import { WalletFacade } from "@midnight-ntwrk/wallet-sdk-facade";
+import { DustWallet } from "@midnight-ntwrk/wallet-sdk-dust-wallet";
+import { HDWallet, Roles, generateRandomSeed } from "@midnight-ntwrk/wallet-sdk-hd";
+import { ShieldedWallet } from "@midnight-ntwrk/wallet-sdk-shielded";
+import {
+  createKeystore,
+  PublicKey,
+  UnshieldedWallet,
+  type UnshieldedKeystore,
+} from "@midnight-ntwrk/wallet-sdk-unshielded-wallet";
+import { NoOpTransactionHistoryStorage } from "@midnight-ntwrk/wallet-sdk-abstractions";
+import {
+  MidnightBech32m,
+  ShieldedAddress,
+  ShieldedCoinPublicKey,
+  ShieldedEncryptionPublicKey,
+} from "@midnight-ntwrk/wallet-sdk-address-format";
+import { Contract, type Ledger } from "../managed/contract/index.js";
+import type { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import type { ParityPrivateState } from "../src/midnight/types.js";
+import { PayrollTree, honestFiling, tamperedFiling } from "../src/utils/filing.js";
+import { InMemoryPrivateStateProvider } from "../src/midnight/in-memory-private-state-provider.js";
+
+// GraphQL subscriptions (wallet sync) need a WebSocket global in Node.
+// @ts-expect-error: assigning the Node 'ws' package over the WHATWG global
+globalThis.WebSocket = WebSocket;
+
+type NetworkName = "preprod" | "preview";
+const NETWORK: NetworkName = process.env.MIDNIGHT_NETWORK === "preview" ? "preview" : "preprod";
+
+const NETWORK_CONFIG: Record<
+  NetworkName,
+  { indexer: string; indexerWS: string; node: string; faucetUrl: string; seedEnvVar: string }
+> = {
+  preprod: {
+    indexer: "https://indexer.preprod.midnight.network/api/v3/graphql",
+    indexerWS: "wss://indexer.preprod.midnight.network/api/v3/graphql/ws",
+    node: "https://rpc.preprod.midnight.network",
+    faucetUrl: "https://midnight-tmnight-preprod.nethermind.dev/",
+    seedEnvVar: "MIDNIGHT_PREPROD_SEED",
+  },
+  preview: {
+    indexer: "https://indexer.preview.midnight.network/api/v3/graphql",
+    indexerWS: "wss://indexer.preview.midnight.network/api/v3/graphql/ws",
+    node: "https://rpc.preview.midnight.network",
+    faucetUrl: "https://midnight.network/test-faucet",
+    seedEnvVar: "MIDNIGHT_PREVIEW_SEED",
+  },
+};
+
+setNetworkId(NETWORK);
+
+const envPath = path.resolve(import.meta.dirname, "..", ".env");
+const SEED_ENV_VAR = NETWORK_CONFIG[NETWORK].seedEnvVar;
+
+/**
+ * Load the per-network seed from .env if present and not already set. Every
+ * run without this would mint a brand-new (unfunded) wallet, orphaning
+ * whatever address you funded last time — this makes reuse the default
+ * instead of something you have to remember to do.
+ */
+function loadDotEnvSeed(): void {
+  if (process.env[SEED_ENV_VAR] || !fs.existsSync(envPath)) return;
+  const match = fs.readFileSync(envPath, "utf8").match(new RegExp(`^${SEED_ENV_VAR}=(.+)$`, "m"));
+  if (match) process.env[SEED_ENV_VAR] = match[1].trim();
+}
+
+/** Persist a freshly generated seed to .env so the next run reuses this same (soon-to-be-funded) wallet. */
+function saveSeedToDotEnv(seed: string): void {
+  fs.appendFileSync(envPath, `${SEED_ENV_VAR}=${seed}\n`);
+  console.log(`  (saved to ${envPath} as ${SEED_ENV_VAR} — future runs reuse this wallet automatically)`);
+}
+
+const CONFIG = {
+  ...NETWORK_CONFIG[NETWORK],
+  proofServer: process.env.PROOF_SERVER_URL ?? "http://127.0.0.1:6300",
+};
+
+// A fresh wallet has to scan chain history from scratch every run (this
+// script has no persisted sync cache across invocations), which can
+// legitimately take much longer than a warm browser wallet's resumed sync —
+// the first real run showed applied-index climbing into the hundreds of
+// thousands well past 3 minutes. 20 min gives that a real chance instead of
+// aborting mid-catch-up; the per-wallet progress log will show whether it's
+// still climbing (slow but fine) or genuinely stalled (isConnected=false, or
+// appliedIndex flat across two log lines).
+const SYNC_TIMEOUT_MS = 20 * 60_000;
+const FUNDING_TIMEOUT_MS = 10 * 60_000;
+const PRIVATE_STATE_ID = "parityPrivateState";
+const managedDir = path.resolve(import.meta.dirname, "..", "managed");
+
+const w = <T>(f: (s: ParityPrivateState) => T) =>
+  ({ privateState }: WitnessContext<Ledger, ParityPrivateState>): [ParityPrivateState, T] =>
+    [privateState, f(privateState)];
+
+const witnesses = {
+  employerIds: w((s) => s.employerIds),
+  employerSalaries: w((s) => s.employerSalaries),
+  employerGroupA: w((s) => s.employerGroupA),
+  employerActive: w((s) => s.employerActive),
+  employeeSecretKey: w((s) => s.employeeSecretKey),
+  employeeSalary: w((s) => s.employeeSalary),
+  employeeIsGroupA: w((s) => s.employeeIsGroupA),
+  merkleSiblings: w((s) => s.merkleSiblings),
+  merklePathIndices: w((s) => s.merklePathIndices),
+  employerClaimedRecordHash: w((s) => s.employerClaimedRecordHash),
+};
+
+// Node equivalent of src/utils/contract.ts: same contract binding
+// and witnesses, but pointed at the managed/ directory on disk instead of a
+// browser-fetched URL.
+const parityCompiledContract = CompiledContract.make<Contract<ParityPrivateState>>(
+  "Parity",
+  Contract,
+).pipe(CompiledContract.withWitnesses(witnesses), CompiledContract.withCompiledFileAssets(managedDir));
+
+type ParityCircuitId = "commitPayroll" | "confirmRecord" | "disputeRecord";
+type ParityProviders = MidnightProviders<ParityCircuitId, string, ParityPrivateState>;
+
+interface WalletContext {
+  wallet: WalletFacade;
+  shieldedSecretKeys: ledger.ZswapSecretKeys;
+  dustSecretKey: ledger.DustSecretKey;
+  unshieldedKeystore: UnshieldedKeystore;
+}
+
+const formatBalance = (balance: bigint): string => balance.toLocaleString();
+
+/** Animated console spinner while an async step runs. */
+async function withStatus<T>(message: string, fn: () => Promise<T>): Promise<T> {
+  const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+  let i = 0;
+  const interval = setInterval(() => {
+    process.stdout.write(`\r  ${frames[i++ % frames.length]} ${message}`);
+  }, 80);
+  try {
+    const result = await fn();
+    clearInterval(interval);
+    process.stdout.write(`\r  ✓ ${message}\n`);
+    return result;
+  } catch (e) {
+    clearInterval(interval);
+    process.stdout.write(`\r  ✗ ${message}\n`);
+    throw e;
+  }
+}
+
+/**
+ * One line per sub-wallet: connection state and how far behind the chain
+ * tip it is. Printed periodically while waiting so a stuck sync shows
+ * *which* sub-wallet is stuck and why (disconnected vs. just lagging),
+ * instead of one opaque isSynced=false.
+ */
+function logSyncProgress(state: any): void {
+  const line = (name: string, progress: any) => {
+    const hasIndices = typeof progress.appliedIndex === "bigint" && typeof progress.highestIndex === "bigint";
+    const indices = hasIndices
+      ? ` applied=${progress.appliedIndex}/${progress.highestIndex} (gap=${progress.highestIndex - progress.appliedIndex})`
+      : "";
+    return `${name}: connected=${progress.isConnected}${indices} complete=${progress.isStrictlyComplete()}`;
+  };
+  console.log(
+    `\n  ${line("shielded", state.shielded.progress)}\n  ${line("unshielded", state.unshielded.progress)}\n  ${line("dust", state.dust.progress)}`,
+  );
+}
+
+/**
+ * Wait for the wallet to report fully synced, or fail loudly after
+ * SYNC_TIMEOUT_MS instead of hanging forever. On an idle Preprod chain the
+ * dust sub-wallet can wait indefinitely for a chain tip that never arrives —
+ * this timeout is the one thing headless mode buys you over the browser
+ * extension's silent spinner. Progress is logged periodically so a timeout
+ * says *which* sub-wallet was stuck, not just "not synced".
+ */
+function waitForSync(wallet: WalletFacade) {
+  let lastState: any = null;
+  return Rx.firstValueFrom(
+    wallet.state().pipe(
+      Rx.throttleTime(5_000),
+      Rx.tap((state) => {
+        lastState = state;
+        logSyncProgress(state);
+      }),
+      Rx.filter((state) => state.isSynced),
+      Rx.timeout({
+        each: SYNC_TIMEOUT_MS,
+        with: () =>
+          Rx.throwError(() => {
+            if (lastState) logSyncProgress(lastState);
+            return new Error(
+              `Wallet did not report synced within ${SYNC_TIMEOUT_MS / 1000}s (see per-wallet progress above). ` +
+                `isConnected=false or a large gap points at ${NETWORK} infra (indexer/node) being degraded ` +
+                "right now, not a problem with this script — see the Midnight Discord #dev-chat or " +
+                "forum.midnight.network for current status.",
+            );
+          }),
+      }),
+    ),
+  );
+}
+
+function waitForFunds(wallet: WalletFacade): Promise<bigint> {
+  return Rx.firstValueFrom(
+    wallet.state().pipe(
+      Rx.throttleTime(10_000),
+      Rx.filter((state) => state.isSynced),
+      Rx.map((s) => s.unshielded.balances[unshieldedToken().raw] ?? 0n),
+      Rx.filter((balance) => balance > 0n),
+      Rx.timeout({
+        each: FUNDING_TIMEOUT_MS,
+        with: () =>
+          Rx.throwError(
+            () =>
+              new Error(
+                `No tNight arrived within ${FUNDING_TIMEOUT_MS / 1000}s. Fund the address printed above from ` +
+                  `the ${NETWORK} faucet (${CONFIG.faucetUrl}), then re-run this script with the same ` +
+                  `${SEED_ENV_VAR}.`,
+              ),
+          ),
+      }),
+    ),
+  );
+}
+
+const buildShieldedConfig = () => ({
+  networkId: NETWORK,
+  indexerClientConnection: { indexerHttpUrl: CONFIG.indexer, indexerWsUrl: CONFIG.indexerWS },
+  provingServerUrl: new URL(CONFIG.proofServer),
+  relayURL: new URL(CONFIG.node.replace(/^http/, "ws")),
+});
+
+const buildUnshieldedConfig = () => ({
+  networkId: NETWORK,
+  indexerClientConnection: { indexerHttpUrl: CONFIG.indexer, indexerWsUrl: CONFIG.indexerWS },
+  // A one-shot deploy script doesn't need persisted tx history.
+  txHistoryStorage: new NoOpTransactionHistoryStorage(),
+});
+
+const buildDustConfig = () => ({
+  networkId: NETWORK,
+  costParameters: { additionalFeeOverhead: 300_000_000_000_000n, feeBlocksMargin: 5 },
+  indexerClientConnection: { indexerHttpUrl: CONFIG.indexer, indexerWsUrl: CONFIG.indexerWS },
+  provingServerUrl: new URL(CONFIG.proofServer),
+  relayURL: new URL(CONFIG.node.replace(/^http/, "ws")),
+});
+
+function deriveKeysFromSeed(seed: string) {
+  const hdWallet = HDWallet.fromSeed(Buffer.from(seed, "hex"));
+  if (hdWallet.type !== "seedOk") throw new Error("Failed to initialize HDWallet from seed");
+  const derivation = hdWallet.hdWallet
+    .selectAccount(0)
+    .selectRoles([Roles.Zswap, Roles.NightExternal, Roles.Dust])
+    .deriveKeysAt(0);
+  if (derivation.type !== "keysDerived") throw new Error("Failed to derive keys from seed");
+  hdWallet.hdWallet.clear();
+  return derivation.keys;
+}
+
+function printWalletSummary(state: any, unshieldedKeystore: UnshieldedKeystore) {
+  const unshieldedBalance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
+  const coinPubKey = ShieldedCoinPublicKey.fromHexString(state.shielded.coinPublicKey.toHexString());
+  const encPubKey = ShieldedEncryptionPublicKey.fromHexString(state.shielded.encryptionPublicKey.toHexString());
+  const shieldedAddress = MidnightBech32m.encode(
+    NETWORK,
+    new ShieldedAddress(coinPubKey, encPubKey),
+  ).toString();
+  const DIV = "─".repeat(64);
+  console.log(`
+${DIV}
+  Wallet Overview                            Network: ${NETWORK}
+${DIV}
+
+  Shielded (ZSwap)
+  └─ Address: ${shieldedAddress}
+
+  Unshielded
+  ├─ Address: ${unshieldedKeystore.getBech32Address()}
+  └─ Balance: ${formatBalance(unshieldedBalance)} tNight
+
+  Dust
+  └─ Address: ${MidnightBech32m.encode(NETWORK, state.dust.address).toString()}
+${DIV}`);
+}
+
+async function registerForDustGeneration(wallet: WalletFacade, unshieldedKeystore: UnshieldedKeystore): Promise<void> {
+  const state = await Rx.firstValueFrom(wallet.state().pipe(Rx.filter((s) => s.isSynced)));
+
+  if (state.dust.availableCoins.length > 0) {
+    console.log(`  ✓ Dust tokens already available (${formatBalance(state.dust.balance(new Date()))} DUST)`);
+    return;
+  }
+
+  const nightUtxos = state.unshielded.availableCoins.filter(
+    (coin: any) => coin.meta?.registeredForDustGeneration !== true,
+  );
+  if (nightUtxos.length === 0) {
+    await withStatus("Waiting for dust tokens to generate", () =>
+      Rx.firstValueFrom(
+        wallet.state().pipe(
+          Rx.throttleTime(5_000),
+          Rx.filter((s) => s.isSynced),
+          Rx.filter((s) => s.dust.balance(new Date()) > 0n),
+        ),
+      ),
+    );
+    return;
+  }
+
+  await withStatus(`Registering ${nightUtxos.length} NIGHT UTXO(s) for dust generation`, async () => {
+    const recipe = await wallet.registerNightUtxosForDustGeneration(
+      nightUtxos,
+      unshieldedKeystore.getPublicKey(),
+      (payload: Uint8Array) => unshieldedKeystore.signData(payload),
+    );
+    const finalized = await wallet.finalizeRecipe(recipe);
+    await wallet.submitTransaction(finalized);
+  });
+
+  await withStatus("Waiting for dust tokens to generate", () =>
+    Rx.firstValueFrom(
+      wallet.state().pipe(
+        Rx.throttleTime(5_000),
+        Rx.filter((s) => s.isSynced),
+        Rx.filter((s) => s.dust.balance(new Date()) > 0n),
+      ),
+    ),
+  );
+}
+
+async function buildWalletAndWaitForFunds(seed: string): Promise<WalletContext> {
+  console.log("");
+
+  const { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore } = await withStatus(
+    "Building wallet",
+    async () => {
+      const keys = deriveKeysFromSeed(seed);
+      const shieldedSecretKeys = ledger.ZswapSecretKeys.fromSeed(keys[Roles.Zswap]);
+      const dustSecretKey = ledger.DustSecretKey.fromSeed(keys[Roles.Dust]);
+      const unshieldedKeystore = createKeystore(keys[Roles.NightExternal], NETWORK as any);
+
+      const walletConfig = { ...buildShieldedConfig(), ...buildUnshieldedConfig(), ...buildDustConfig() };
+      const wallet = await WalletFacade.init({
+        configuration: walletConfig,
+        shielded: (cfg: any) => ShieldedWallet(cfg).startWithSecretKeys(shieldedSecretKeys),
+        unshielded: (cfg: any) => UnshieldedWallet(cfg).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore)),
+        dust: (cfg: any) =>
+          DustWallet(cfg).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust),
+      });
+      await wallet.start(shieldedSecretKeys, dustSecretKey);
+      return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore };
+    },
+  );
+
+  const DIV = "─".repeat(64);
+  console.log(`
+${DIV}
+  Unshielded Address (send tNight here):
+  ${unshieldedKeystore.getBech32Address()}
+
+  Fund via the ${NETWORK} faucet if you haven't already:
+  ${CONFIG.faucetUrl}
+${DIV}
+`);
+
+  const syncedState = await withStatus("Syncing with network (up to 3 min before failing loudly)", () =>
+    waitForSync(wallet),
+  );
+  printWalletSummary(syncedState, unshieldedKeystore);
+
+  const balance = syncedState.unshielded.balances[unshieldedToken().raw] ?? 0n;
+  if (balance === 0n) {
+    const funded = await withStatus("Waiting for incoming tNight (up to 10 min)", () => waitForFunds(wallet));
+    console.log(`    Balance: ${formatBalance(funded)} tNight\n`);
+  }
+
+  await registerForDustGeneration(wallet, unshieldedKeystore);
+  return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore };
+}
+
+function toHex(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString("hex");
+}
+
+async function createWalletAndMidnightProvider(ctx: WalletContext) {
+  // buildWalletAndWaitForFunds already awaited a synced state before this is
+  // called, so a fresh synced snapshot here resolves immediately.
+  const state = await Rx.firstValueFrom(ctx.wallet.state().pipe(Rx.filter((s) => s.isSynced)));
+  return {
+    getCoinPublicKey() {
+      return state.shielded.coinPublicKey.toHexString();
+    },
+    getEncryptionPublicKey() {
+      return state.shielded.encryptionPublicKey.toHexString();
+    },
+    async balanceTx(tx: UnboundTransaction, ttl?: Date) {
+      const recipe = await ctx.wallet.balanceUnboundTransaction(
+        tx as any,
+        { shieldedSecretKeys: ctx.shieldedSecretKeys, dustSecretKey: ctx.dustSecretKey },
+        { ttl: ttl ?? new Date(Date.now() + 30 * 60 * 1000) },
+      );
+      return ctx.wallet.finalizeRecipe(recipe) as any;
+    },
+    async submitTx(tx: any) {
+      return ctx.wallet.submitTransaction(tx) as any;
+    },
+  };
+}
+
+async function main() {
+  console.log(`\n  Network: ${NETWORK} (set MIDNIGHT_NETWORK=preprod|preview to change)`);
+  loadDotEnvSeed();
+  const seedArg = process.env[SEED_ENV_VAR];
+  const seed = seedArg ?? toHex(Buffer.from(generateRandomSeed()));
+  if (!seedArg) {
+    const DIV = "─".repeat(64);
+    console.log(`
+${DIV}
+  New Wallet Seed
+${DIV}
+  ${seed}
+${DIV}
+`);
+    saveSeedToDotEnv(seed);
+  }
+
+  const ctx = await buildWalletAndWaitForFunds(seed);
+  const walletAndMidnightProvider = await createWalletAndMidnightProvider(ctx);
+
+  const zkConfigProvider = new NodeZkConfigProvider<ParityCircuitId>(managedDir);
+  const providers: ParityProviders = {
+    privateStateProvider: new InMemoryPrivateStateProvider<ParityPrivateState>(),
+    publicDataProvider: indexerPublicDataProvider(CONFIG.indexer, CONFIG.indexerWS),
+    zkConfigProvider,
+    proofProvider: httpClientProofProvider(CONFIG.proofServer, zkConfigProvider),
+    walletProvider: walletAndMidnightProvider,
+    midnightProvider: walletAndMidnightProvider,
+  } as ParityProviders;
+
+  const reportingPeriod = crypto.getRandomValues(new Uint8Array(32));
+  const jobCategory = crypto.getRandomValues(new Uint8Array(32));
+  // PARITY_FILING=tampered files one row higher than it really is, so the demo
+  // can show the confirmation rate stalling. Defaults to the honest payroll.
+  const tree = new PayrollTree(
+    process.env.PARITY_FILING === "tampered" ? tamperedFiling() : honestFiling(),
+  );
+
+  const deployed = await withStatus("Deploying Parity filing contract", () =>
+    deployContract(providers, {
+      compiledContract: parityCompiledContract,
+      privateStateId: PRIVATE_STATE_ID,
+      initialPrivateState: tree.employerState(),
+      args: [reportingPeriod, jobCategory],
+    }),
+  );
+
+  const address = deployed.deployTxData.public.contractAddress;
+  const DIV = "─".repeat(64);
+  console.log(`
+${DIV}
+  Deployed! Contract address (${NETWORK}):
+
+  ${address}
+
+  Paste this into the "Contract Address" table in README.md.
+${DIV}
+`);
+
+  process.exit(0);
+}
+
+main().catch((e) => {
+  console.error("\nDeploy failed:", e instanceof Error ? e.message : e);
+  process.exit(1);
+});
