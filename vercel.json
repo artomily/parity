@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh && export PATH=\"$HOME/.local/bin:$PATH\" && compact update && npm run compact && npm run build",
+  "buildCommand": "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh && export PATH=\"$HOME/.local/bin:$PATH\" && compact update 0.31.1 && npm run compact && npm run build",
   "outputDirectory": "dist",
   "framework": null
 }

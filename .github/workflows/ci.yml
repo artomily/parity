@@ -29,7 +29,11 @@ jobs:
 
       - name: compact compile
         run: |
-          compact update
+          # Pinned: `compact update` with no argument installs whatever the
+          # latest toolchain is, and 0.34.0 requires language version 0.26.0
+          # while contracts/parity.compact declares 0.23. Bump this together
+          # with the pragma and the @midnight-ntwrk/* runtime versions.
+          compact update 0.31.1
           compact --version
           npm run compact
 
