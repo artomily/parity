@@ -3,3 +3,5 @@ managed/
 dist/
 .env
 *.local
+public/keys/
+public/zkir/
