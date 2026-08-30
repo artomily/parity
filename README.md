@@ -6,7 +6,7 @@
 
 ## Live Demo
 
-`[PREPROD DEMO URL — paste after deploying the frontend]`
+**https://parity-tech.vercel.app/**
 
 ## Contract Address
 
@@ -147,4 +147,4 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 ## Product X Profile
 
-`[PLACEHOLDER — add after creating the account]`
+[**@paritycompany**](https://x.com/paritycompany)
