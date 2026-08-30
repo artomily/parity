@@ -1,0 +1,23 @@
+{
+  "name": "parity-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Remotion project that renders the Parity MVP demo video.",
+  "scripts": {
+    "audio": "node scripts/gen-audio.mjs",
+    "studio": "remotion studio",
+    "render": "remotion render ParityDemo out/parity-demo.mp4 --concurrency 4",
+    "build": "npm run audio && npm run render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.518",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.518"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.0",
+    "typescript": "5.7.3"
+  }
+}

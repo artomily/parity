@@ -1,0 +1,36 @@
+{
+  "scenes": [
+    {
+      "id": "s1-problem",
+      "durationInSeconds": 25.743764
+    },
+    {
+      "id": "s2-connect",
+      "durationInSeconds": 7.070476
+    },
+    {
+      "id": "s3-commit",
+      "durationInSeconds": 21.592154
+    },
+    {
+      "id": "s4-public",
+      "durationInSeconds": 17.67551
+    },
+    {
+      "id": "s5-confirm",
+      "durationInSeconds": 17.973107
+    },
+    {
+      "id": "s6-tamper",
+      "durationInSeconds": 18.184172
+    },
+    {
+      "id": "s7-catch",
+      "durationInSeconds": 30.281134
+    },
+    {
+      "id": "s8-close",
+      "durationInSeconds": 8.737052
+    }
+  ]
+}

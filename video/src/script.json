@@ -1,0 +1,38 @@
+{
+  "voice": "Daniel",
+  "rate": 168,
+  "scenes": [
+    {
+      "id": "s1-problem",
+      "text": "From twenty twenty-seven, every employer in the European Union with a hundred and fifty or more staff must publish its gender pay gap. But nobody can check whether that number is true. The employer computes it from its own payroll, and verifying the arithmetic would require the individual salaries, which data protection law forbids disclosing. So regulators are reduced to flagging the filings that merely look implausible. This is Parity."
+    },
+    {
+      "id": "s2-connect",
+      "text": "Parity runs on Midnight. Connect a wallet, and that is the entire sign up. No account, and no personal data."
+    },
+    {
+      "id": "s3-commit",
+      "text": "First, the employer files. The payroll snapshot is committed as a Merkle root, and the published figures are computed from that same snapshot inside one circuit. There is no step at which the gap could be computed from one data set, and a different one committed. That spinner is real work. The proof is generated locally, and the salaries never leave this machine."
+    },
+    {
+      "id": "s4-public",
+      "text": "Here is everything that became public. A reported pay gap of fifteen point six percent. Each group's headcount, and each group's total pay. What you do not see is a single individual salary, because not one of them was ever transmitted. They were consumed inside the circuit as private witnesses."
+    },
+    {
+      "id": "s5-confirm",
+      "text": "Second, each worker checks the row filed about them. Their own payslip figure is held locally. Confirming proves, in zero knowledge, that the record filed under their identity matches it. Without revealing which row is theirs, or what either figure says. What becomes public is only the count."
+    },
+    {
+      "id": "s6-tamper",
+      "text": "Now watch the same employer file a tampered payroll. One worker's pay is inflated, to flatter the gap. The reported figure falls to nine point four percent, and on a conventional filing, that is where the story would end. Workers two, three and four confirm as normal. Nothing about their rows changed."
+    },
+    {
+      "id": "s7-catch",
+      "text": "But worker one is the person who was lied about. Their confirmation fails, because the record filed about them is not what they are paid. So they dispute it instead, and the dispute is recorded on chain. Now look at the coverage bar. The confirmation rate has stalled, a dispute is showing, and not one salary has been exposed. Records invented to move an average are never confirmed by anybody. Fraud stops being one person editing a spreadsheet, and becomes a conspiracy that every worker would have to join."
+    },
+    {
+      "id": "s8-close",
+      "text": "Parity. The contract is live on Midnight, continuous integration is green, and the code and the documentation are public. The links are below."
+    }
+  ]
+}
