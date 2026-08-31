@@ -399,7 +399,7 @@ ${DIV}
 ${DIV}
 `);
 
-  const syncedState = await withStatus("Syncing with network (up to 3 min before failing loudly)", () =>
+  const syncedState = await withStatus(`Syncing with network (up to ${SYNC_TIMEOUT_MS / 60_000} min before failing loudly)`, () =>
     waitForSync(wallet),
   );
   printWalletSummary(syncedState, unshieldedKeystore);

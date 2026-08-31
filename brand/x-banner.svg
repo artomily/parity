@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="1500" height="500" role="img" aria-label="Parity — verifiable pay-gap reporting on Midnight">
+  <title>Parity — verifiable pay-gap reporting</title>
+  <!--
+    X crops this hard on mobile and the avatar covers the lower left, so the
+    claim sits centre-right and everything important stays inside the middle
+    band: roughly x 380-1400, y 120-380.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1216"/>
+      <stop offset="0.55" stop-color="#141a24"/>
+      <stop offset="1" stop-color="#101a1f"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7aa2ff"/>
+      <stop offset="1" stop-color="#4ac68b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1500" height="500" fill="url(#bg)"/>
+
+  <!-- faint coverage bar motif across the base: 7 confirmed, 1 disputed, 2 pending -->
+  <g opacity="0.5">
+    <rect x="380" y="424" width="1020" height="10" rx="5" fill="#2a303a"/>
+    <rect x="380" y="424" width="714" height="10" rx="5" fill="#4ac68b"/>
+    <rect x="1094" y="424" width="102" height="10" rx="5" fill="#ff8a80"/>
+  </g>
+
+  <!-- the mark -->
+  <g transform="translate(380, 148)">
+    <rect width="132" height="132" rx="30" fill="url(#mark)"/>
+    <rect x="39" y="34" width="22" height="60" rx="7" fill="#0f1216"/>
+    <rect x="71" y="34" width="22" height="60" rx="7" fill="none" stroke="#0f1216" stroke-width="6"/>
+    <rect x="31" y="101" width="70" height="6" rx="3" fill="#0f1216" fill-opacity="0.55"/>
+  </g>
+
+  <text x="560" y="212" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="76" font-weight="650" letter-spacing="-2" fill="#e8ebef">Parity</text>
+
+  <text x="560" y="264" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="29" fill="#98a1ae">A gender pay-gap filing that can be verified —</text>
+  <text x="560" y="303" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="29" fill="#98a1ae">without anyone seeing a single salary.</text>
+
+  <text x="560" y="370" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="23" letter-spacing="0.6" fill="#4ac68b">Built on Midnight</text>
+  <text x="770" y="370" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="23" letter-spacing="0.6" fill="#5c6773">·</text>
+  <text x="796" y="370" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="23" letter-spacing="0.6" fill="#98a1ae">parity-tech.vercel.app</text>
+</svg>
