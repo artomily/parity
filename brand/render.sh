@@ -9,10 +9,12 @@ CHROME="video/node_modules/.remotion/chrome-headless-shell/mac-arm64/chrome-head
 render() { # svg width height
   "$CHROME" --headless --disable-gpu --hide-scrollbars \
     --force-device-scale-factor=2 --window-size="$2,$3" \
-    --screenshot="brand/$(basename "$1" .svg).png" "file://$PWD/$1" >/dev/null 2>&1
-  echo "  brand/$(basename "$1" .svg).png  ($(( $2 * 2 ))x$(( $3 * 2 )))"
+    --screenshot="${1%.svg}.png" "file://$PWD/$1" >/dev/null 2>&1
+  echo "  ${1%.svg}.png  ($(( $2 * 2 ))x$(( $3 * 2 )))"
 }
 
 render brand/x-banner.svg 1500 500
 render brand/avatar.svg    400 400
 render brand/logo.svg      320 320
+
+for n in 1 2 3 4; do render "brand/posts/post-$n.svg" 1600 900; done

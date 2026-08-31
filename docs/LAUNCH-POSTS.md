@@ -4,11 +4,13 @@ Four posts for the launch of [@paritycompany](https://x.com/paritycompany), in o
 Post them over a couple of days rather than all at once; post 1 is the pin.
 
 Before posting, check the Midnight account's real handle and add the mention to post 1 —
-do not guess it. The contract address goes into post 4 once the deploy lands.
+do not guess it. The contract address is `ec99ff0a…5dc9` on Preview, if you want it in a reply.
 
 ---
 
 ## Post 1 — Launch. Pin this one.
+
+Image: [`brand/posts/post-1.png`](../brand/posts/post-1.png)
 
 > From 2027, every EU employer with 150+ staff must publish its gender pay gap.
 >
@@ -24,6 +26,8 @@ do not guess it. The contract address goes into post 4 once the deploy lands.
 
 ## Post 2 — Why this is not a solved problem
 
+Image: [`brand/posts/post-2.png`](../brand/posts/post-2.png)
+
 > The UK's pay-gap regulator flags suspicious filings by statistical implausibility.
 >
 > 30 accuracy letters in 2024. 42 in 2025.
@@ -37,6 +41,8 @@ do not guess it. The contract address goes into post 4 once the deploy lands.
 ---
 
 ## Post 3 — The privacy model
+
+Image: [`brand/posts/post-3.png`](../brand/posts/post-3.png)
 
 > Public on-chain:
 > · the payroll's Merkle root
@@ -54,6 +60,8 @@ do not guess it. The contract address goes into post 4 once the deploy lands.
 ---
 
 ## Post 4 — The demo, with the video attached
+
+Image: [`brand/posts/post-4.png`](../brand/posts/post-4.png)
 
 > Live on Midnight.
 >
@@ -80,3 +88,7 @@ do not guess it. The contract address goes into post 4 once the deploy lands.
 - Avatar: `brand/avatar.png` (800×800)
 - Header: `brand/x-banner.png` (3000×1000, safe area kept clear of the avatar crop)
 - Website field: `https://parity-tech.vercel.app/`
+- Post images: `brand/posts/post-1.png` … `post-4.png` (1600×900 at 2×)
+
+Every asset is generated from the SVG sources next to it; `./brand/render.sh`
+re-exports the PNGs after any edit.

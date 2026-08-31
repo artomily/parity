@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <linearGradient id="o" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9838"/><stop offset="1" stop-color="#F26F1A"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="22" flood-color="#BE8246" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="#FFF9F2"/>
+  <ellipse cx="1470" cy="120" rx="300" ry="250" fill="#FDEBD8" opacity="0.75"/>
+
+  <text x="110" y="128" font-size="23" font-weight="650" letter-spacing="3.2" fill="#F26F1A">A TAMPERED FILING, CAUGHT</text>
+  <text x="110" y="216" font-size="58" font-weight="650" letter-spacing="-1.8" fill="#33404F">One row was inflated to flatter the gap.</text>
+  <text x="110" y="284" font-size="58" font-weight="650" letter-spacing="-1.8" fill="#33404F">The worker it described refused to confirm.</text>
+
+  <!-- the product's own coverage panel -->
+  <g filter="url(#sh)">
+    <rect x="110" y="352" width="1380" height="300" rx="22" fill="#ffffff" stroke="#F0E4D6"/>
+  </g>
+
+  <circle cx="172" cy="422" r="20" fill="#FFF4E8"/>
+  <text x="172" y="431" font-size="21" font-weight="650" fill="#F26F1A" text-anchor="middle">4</text>
+  <text x="210" y="431" font-size="27" font-weight="650" fill="#33404F">Coverage — how much of the filing is independently attested</text>
+
+  <rect x="172" y="484" width="1256" height="22" rx="11" fill="#EFE3D5"/>
+  <path d="M172 484 h355 v22 h-355 a11 11 0 0 1 -11 -11 a11 11 0 0 1 11 -11 z" fill="#2E9E6B"/>
+  <rect x="527" y="484" width="126" height="22" fill="#E2574C"/>
+
+  <text x="172" y="568" font-size="30" font-weight="700" fill="#33404F">10</text>
+  <text x="212" y="568" font-size="26" fill="#6B7A8C">committed</text>
+  <text x="380" y="568" font-size="30" font-weight="700" fill="#2E9E6B">3</text>
+  <text x="404" y="568" font-size="26" fill="#6B7A8C">confirmed by the worker</text>
+  <text x="768" y="568" font-size="30" font-weight="700" fill="#33404F">6</text>
+  <text x="792" y="568" font-size="26" fill="#6B7A8C">unconfirmed</text>
+  <text x="990" y="568" font-size="30" font-weight="700" fill="#E2574C">1</text>
+  <text x="1010" y="568" font-size="26" fill="#6B7A8C">disputed</text>
+
+  <text x="172" y="618" font-size="22" fill="#6B7A8C">Records invented to move an average are never confirmed by anyone.</text>
+
+  <text x="110" y="742" font-size="52" font-weight="650" letter-spacing="-1.6" fill="#F26F1A">The lie surfaces. No salary does.</text>
+
+  <g transform="translate(110, 790) scale(0.52)">
+    <rect width="126" height="126" rx="30" fill="url(#o)"/>
+    <path fill="#ffffff" fill-rule="evenodd" d="M38 28 H71 A21 21 0 0 1 71 70 H55 V98 H38 Z M55 41 H71 A8 8 0 0 1 71 57 H55 Z"/>
+  </g>
+  <text x="192" y="835" font-size="31" font-weight="650" letter-spacing="-0.6" fill="#33404F">Parity</text>
+  <text x="286" y="835" font-size="24" fill="#6B7A8C">· live on Midnight · parity-tech.vercel.app</text>
+</svg>

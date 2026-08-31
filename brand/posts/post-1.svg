@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <linearGradient id="o" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9838"/><stop offset="1" stop-color="#F26F1A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="#FFF9F2"/>
+  <ellipse cx="1460" cy="140" rx="330" ry="290" fill="#FDEBD8"/>
+  <ellipse cx="90" cy="830" rx="240" ry="200" fill="#FDEBD8" opacity="0.65"/>
+
+  <text x="110" y="168" font-size="23" font-weight="650" letter-spacing="3.2" fill="#F26F1A">DIRECTIVE (EU) 2023/970 · FROM 2027</text>
+  <rect x="110" y="196" width="64" height="6" rx="3" fill="#F26F1A"/>
+
+  <text x="110" y="330" font-size="70" font-weight="650" letter-spacing="-2" fill="#33404F">Every large employer must</text>
+  <text x="110" y="412" font-size="70" font-weight="650" letter-spacing="-2" fill="#33404F">publish its gender pay gap.</text>
+
+  <text x="110" y="524" font-size="62" font-weight="650" letter-spacing="-1.6" fill="#F26F1A">Nobody can check</text>
+  <text x="110" y="598" font-size="62" font-weight="650" letter-spacing="-1.6" fill="#F26F1A">whether it is true.</text>
+
+  <text x="110" y="686" font-size="27" fill="#6B7A8C">Verifying the figure needs the individual salaries —</text>
+  <text x="110" y="726" font-size="27" fill="#6B7A8C">which data-protection law forbids disclosing.</text>
+
+  <g transform="translate(110, 790) scale(0.52)">
+    <rect width="126" height="126" rx="30" fill="url(#o)"/>
+    <path fill="#ffffff" fill-rule="evenodd" d="M38 28 H71 A21 21 0 0 1 71 70 H55 V98 H38 Z M55 41 H71 A8 8 0 0 1 71 57 H55 Z"/>
+  </g>
+  <text x="192" y="835" font-size="31" font-weight="650" letter-spacing="-0.6" fill="#33404F">Parity</text>
+  <text x="286" y="835" font-size="24" fill="#6B7A8C">· proves the figure without revealing anyone's pay</text>
+</svg>
