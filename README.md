@@ -6,13 +6,26 @@
 
 ## Live Demo
 
-`[PREPROD DEMO URL — paste after deploying the frontend]`
+**https://parity-tech.vercel.app/**
+
+## Demo Video
+
+[docs/demo/parity-demo.mp4](docs/demo/parity-demo.mp4) — a 2m 39s walkthrough of the full flow:
+the employer commits a payroll, the figures become public, workers confirm their own rows, and a
+tampered filing is caught by a worker's dispute while no salary is ever exposed.
+
+The video is generated from source, not screen-captured: [`video/`](video/) is a Remotion project
+that renders the product's own UI and narrates it with the macOS speech synthesiser, so it can be
+re-rendered whenever the interface changes (`cd video && npm install && npm run build`).
 
 ## Contract Address
 
-| Network  | Address                                   |
-|----------|-------------------------------------------|
-| Preprod  | `[ADDRESS — paste after running the deploy]` |
+| Network | Address                                                            |
+|---------|--------------------------------------------------------------------|
+| Preview | `ec99ff0a359617f95d7fc26f434c8e96d6ba56b1852e7eeef7b3222b9b645dc9` |
+
+Deployed with [`scripts/deploy-cli.ts`](scripts/deploy-cli.ts) against a local proof server
+matching the pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 
 ## What This Product Does
 
@@ -88,7 +101,8 @@ React 19 + Vite 7 · TypeScript · Vitest · GitHub Actions
 
 ## Prerequisites
 
-- [Lace wallet](https://www.lace.io/) browser extension, funded from the Preprod faucet
+- [Lace wallet](https://www.lace.io/) browser extension, funded from the
+  [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/)
 - Node.js v22
 - Docker (only if your wallet does not support delegated proving — see below)
 
@@ -106,9 +120,11 @@ React 19 + Vite 7 · TypeScript · Vitest · GitHub Actions
    ```
    npm run compact
    ```
-4. Start a local proof server, only if your wallet cannot prove for you:
+4. Start a local proof server, only if your wallet cannot prove for you. The image tag must
+   match the `@midnight-ntwrk/ledger-v8` version this repo pins — a mismatched proof server
+   fails with a bare "Failed to prove transaction" and logs nothing useful:
    ```
-   docker run -p 6300:6300 midnightnetwork/proof-server
+   docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0
    ```
 5. Run the app:
    ```
@@ -147,4 +163,4 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 ## Product X Profile
 
-`[PLACEHOLDER — add after creating the account]`
+[**@paritycompany**](https://x.com/paritycompany)

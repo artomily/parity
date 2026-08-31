@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Parity">
+  <title>Parity</title>
+  <defs>
+    <linearGradient id="o" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9838"/>
+      <stop offset="1" stop-color="#F26F1A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="320" height="320" rx="76" fill="url(#o)"/>
+
+  <!-- P, drawn as paths rather than text so it renders identically everywhere -->
+  <path fill="#ffffff" fill-rule="evenodd"
+        d="M98 70 H182 A53 53 0 0 1 182 176 H138 V250 H98 Z
+           M138 104 H180 A21 21 0 0 1 180 146 H138 Z"/>
+</svg>

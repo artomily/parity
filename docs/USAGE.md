@@ -11,12 +11,13 @@ You will play both roles: first the employer filing a payroll, then the workers 
 ## What You Need
 
 1. **A Midnight wallet.** Install [Lace](https://www.lace.io/) in your browser.
-2. **Some test funds.** Open the wallet and fund it from the Preprod faucet. You need a
+2. **Some test funds.** Open the wallet and fund it from the
+   [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/). You need a
    small balance to submit transactions.
 3. **A proving setup.** Lace can generate proofs for you. If your wallet asks for a proof
    server instead, run one locally:
    ```
-   docker run -p 6300:6300 midnightnetwork/proof-server
+   docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0
    ```
 4. That's all. No account, no sign-up, no personal data.
 
@@ -106,7 +107,7 @@ few seconds — the app polls for the wallet for five seconds before giving up.
 
 **Proof generation hangs, or the wallet reports no proof server.**
 Your wallet does not support delegated proving. Start a local proof server with
-`docker run -p 6300:6300 midnightnetwork/proof-server` and set its URL (`http://localhost:6300`)
+`docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0` and set its URL (`http://localhost:6300`)
 in the wallet's settings.
 
 **"The filed record does not match this payslip."**
@@ -122,7 +123,7 @@ The payroll has fewer than three people in one of the groups, so publishing an a
 would identify them. Add more records to that group.
 
 **"Could not reach the proof server or indexer."**
-Check your network, and confirm your wallet is set to the same network as the app (Preprod).
+Check your network, and confirm your wallet is set to the same network as the app (Preview).
 
 **Transaction fails with a fee or balance error.**
-The wallet needs test funds. Top it up from the Preprod faucet and try again.
+The wallet needs test funds. Top it up from the Preview faucet and try again.

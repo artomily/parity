@@ -14,14 +14,14 @@
     "test": "vitest run",
     "test:compile": "npm run compact && vitest run",
     "typecheck": "tsc --noEmit",
-    "deploy:preprod": "tsx scripts/deploy-cli.ts",
-    "deploy:preview": "MIDNIGHT_NETWORK=preview tsx scripts/deploy-cli.ts"
+    "deploy:preprod": "NODE_OPTIONS=--max-old-space-size=12288 tsx scripts/deploy-cli.ts",
+    "deploy:preview": "MIDNIGHT_NETWORK=preview NODE_OPTIONS=--max-old-space-size=12288 tsx scripts/deploy-cli.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.1",
     "@midnight-ntwrk/compact-runtime": "0.16.0",
     "@midnight-ntwrk/dapp-connector-api": "4.0.1",
-    "@midnight-ntwrk/ledger-v8": "^8.1.0",
+    "@midnight-ntwrk/ledger-v8": "8.1.0",
     "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
     "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
@@ -53,5 +53,8 @@
     "vite": "^7.0.0",
     "vite-plugin-wasm": "^3.5.0",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "@midnight-ntwrk/ledger-v8": "8.1.0"
   }
 }

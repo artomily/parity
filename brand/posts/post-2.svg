@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <linearGradient id="o" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9838"/><stop offset="1" stop-color="#F26F1A"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#BE8246" flood-opacity="0.13"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="#FFF9F2"/>
+  <ellipse cx="1500" cy="820" rx="300" ry="240" fill="#FDEBD8" opacity="0.8"/>
+
+  <text x="110" y="150" font-size="23" font-weight="650" letter-spacing="3.2" fill="#F26F1A">UK GENDER PAY GAP ENFORCEMENT</text>
+  <rect x="110" y="178" width="64" height="6" rx="3" fill="#F26F1A"/>
+
+  <text x="110" y="268" font-size="56" font-weight="650" letter-spacing="-1.6" fill="#33404F">The regulator flags filings that</text>
+  <text x="110" y="334" font-size="56" font-weight="650" letter-spacing="-1.6" fill="#33404F">merely look implausible.</text>
+
+  <g filter="url(#sh)">
+    <rect x="110" y="404" width="418" height="230" rx="20" fill="#ffffff" stroke="#F0E4D6"/>
+    <rect x="576" y="404" width="418" height="230" rx="20" fill="#ffffff" stroke="#F0E4D6"/>
+    <rect x="1042" y="404" width="418" height="230" rx="20" fill="#ffffff" stroke="#F0E4D6"/>
+  </g>
+
+  <text x="152" y="530" font-size="88" font-weight="700" letter-spacing="-3" fill="#33404F">30</text>
+  <text x="152" y="578" font-size="24" fill="#6B7A8C">accuracy letters, 2024</text>
+
+  <text x="618" y="530" font-size="88" font-weight="700" letter-spacing="-3" fill="#33404F">42</text>
+  <text x="618" y="578" font-size="24" fill="#6B7A8C">accuracy letters, 2025</text>
+
+  <text x="1084" y="530" font-size="88" font-weight="700" letter-spacing="-3" fill="#F26F1A">0</text>
+  <text x="1084" y="578" font-size="24" fill="#6B7A8C">fines issued, ever</text>
+
+  <text x="110" y="742" font-size="42" font-weight="650" letter-spacing="-1.2" fill="#33404F">That is not weak enforcement.</text>
+  <text x="110" y="798" font-size="42" font-weight="650" letter-spacing="-1.2" fill="#F26F1A">It is missing evidence.</text>
+
+  <text x="110" y="852" font-size="23" fill="#6B7A8C">The only proof of a filing is the payroll nobody is allowed to see.</text>
+</svg>
