@@ -10,7 +10,9 @@
 
 ## Demo Video
 
-[docs/demo/parity-demo.mp4](docs/demo/parity-demo.mp4) — a 2m 39s walkthrough of the full flow:
+**Watch it: https://youtu.be/luBz-gQ5mzI**
+
+Also in the repo at [docs/demo/parity-demo.mp4](docs/demo/parity-demo.mp4) — a 2m 39s walkthrough of the full flow:
 the employer commits a payroll, the figures become public, workers confirm their own rows, and a
 tampered filing is caught by a worker's dispute while no salary is ever exposed.
 
