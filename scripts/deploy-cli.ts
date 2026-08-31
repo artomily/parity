@@ -71,11 +71,14 @@ const NETWORK_CONFIG: Record<
     faucetUrl: "https://midnight-tmnight-preprod.nethermind.dev/",
     seedEnvVar: "MIDNIGHT_PREPROD_SEED",
   },
+  // midnight.network/test-faucet 308-redirects to the *preprod* faucet, which
+  // rejects a preview address outright ("Provided address is invalid"). Each
+  // network has its own faucet host; these are the ones the docs list.
   preview: {
     indexer: "https://indexer.preview.midnight.network/api/v3/graphql",
     indexerWS: "wss://indexer.preview.midnight.network/api/v3/graphql/ws",
     node: "https://rpc.preview.midnight.network",
-    faucetUrl: "https://midnight.network/test-faucet",
+    faucetUrl: "https://midnight-tmnight-preview.nethermind.dev/",
     seedEnvVar: "MIDNIGHT_PREVIEW_SEED",
   },
 };
