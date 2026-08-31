@@ -112,14 +112,16 @@ const CONFIG = {
 };
 
 // A fresh wallet has to scan chain history from scratch every run (this
-// script has no persisted sync cache across invocations), which can
-// legitimately take much longer than a warm browser wallet's resumed sync —
-// the first real run showed applied-index climbing into the hundreds of
-// thousands well past 3 minutes. 20 min gives that a real chance instead of
-// aborting mid-catch-up; the per-wallet progress log will show whether it's
-// still climbing (slow but fine) or genuinely stalled (isConnected=false, or
-// appliedIndex flat across two log lines).
-const SYNC_TIMEOUT_MS = 20 * 60_000;
+// script has no persisted sync cache across invocations), which takes far
+// longer than a warm browser wallet's resumed sync. The per-wallet progress
+// log shows whether it is still climbing (slow but fine) or genuinely stalled
+// (isConnected=false, or appliedIndex flat across two log lines).
+// Preprod's chain is far longer than preview's: a cold wallet was still
+// climbing past 1,000,000 applied blocks at the 14-minute mark, where
+// preview finished around 176,000. 20 minutes cut that off mid-scan, and
+// since nothing is cached between runs a retry just repeats the same race.
+// Override with SYNC_TIMEOUT_MINUTES if a network is slower still.
+const SYNC_TIMEOUT_MS = Number(process.env.SYNC_TIMEOUT_MINUTES ?? 60) * 60_000;
 const FUNDING_TIMEOUT_MS = 10 * 60_000;
 const PRIVATE_STATE_ID = "parityPrivateState";
 const managedDir = path.resolve(import.meta.dirname, "..", "managed");
