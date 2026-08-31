@@ -20,9 +20,12 @@ re-rendered whenever the interface changes (`cd video && npm install && npm run 
 
 ## Contract Address
 
-| Network  | Address                                   |
-|----------|-------------------------------------------|
-| Preprod  | `[ADDRESS — paste after running the deploy]` |
+| Network | Address                                                            |
+|---------|--------------------------------------------------------------------|
+| Preview | `ec99ff0a359617f95d7fc26f434c8e96d6ba56b1852e7eeef7b3222b9b645dc9` |
+
+Deployed with [`scripts/deploy-cli.ts`](scripts/deploy-cli.ts) against a local proof server
+matching the pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 
 ## What This Product Does
 
@@ -98,7 +101,8 @@ React 19 + Vite 7 · TypeScript · Vitest · GitHub Actions
 
 ## Prerequisites
 
-- [Lace wallet](https://www.lace.io/) browser extension, funded from the Preprod faucet
+- [Lace wallet](https://www.lace.io/) browser extension, funded from the
+  [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/)
 - Node.js v22
 - Docker (only if your wallet does not support delegated proving — see below)
 

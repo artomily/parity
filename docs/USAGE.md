@@ -11,7 +11,8 @@ You will play both roles: first the employer filing a payroll, then the workers 
 ## What You Need
 
 1. **A Midnight wallet.** Install [Lace](https://www.lace.io/) in your browser.
-2. **Some test funds.** Open the wallet and fund it from the Preprod faucet. You need a
+2. **Some test funds.** Open the wallet and fund it from the
+   [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/). You need a
    small balance to submit transactions.
 3. **A proving setup.** Lace can generate proofs for you. If your wallet asks for a proof
    server instead, run one locally:
@@ -122,7 +123,7 @@ The payroll has fewer than three people in one of the groups, so publishing an a
 would identify them. Add more records to that group.
 
 **"Could not reach the proof server or indexer."**
-Check your network, and confirm your wallet is set to the same network as the app (Preprod).
+Check your network, and confirm your wallet is set to the same network as the app (Preview).
 
 **Transaction fails with a fee or balance error.**
-The wallet needs test funds. Top it up from the Preprod faucet and try again.
+The wallet needs test funds. Top it up from the Preview faucet and try again.
