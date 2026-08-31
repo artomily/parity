@@ -16,10 +16,6 @@ Also in the repo at [docs/demo/parity-demo.mp4](docs/demo/parity-demo.mp4) — a
 the employer commits a payroll, the figures become public, workers confirm their own rows, and a
 tampered filing is caught by a worker's dispute while no salary is ever exposed.
 
-The video is generated from source, not screen-captured: [`video/`](video/) is a Remotion project
-that renders the product's own UI and narrates it with the macOS speech synthesiser, so it can be
-re-rendered whenever the interface changes (`cd video && npm install && npm run build`).
-
 ## Contract Address
 
 | Network | Address                                                            |
