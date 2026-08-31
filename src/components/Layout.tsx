@@ -1,5 +1,26 @@
 import type { ReactNode } from "react";
 
+/** The wordmark's P, inline so it needs no network request and stays crisp. */
+function ParityMark() {
+  return (
+    <svg className="mark" viewBox="0 0 320 320" aria-hidden="true">
+      <defs>
+        <linearGradient id="parity-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FF9838" />
+          <stop offset="1" stopColor="#F26F1A" />
+        </linearGradient>
+      </defs>
+      <rect width="320" height="320" rx="76" fill="url(#parity-mark)" />
+      <path
+        fill="#ffffff"
+        fillRule="evenodd"
+        d="M98 70 H182 A53 53 0 0 1 182 176 H138 V250 H98 Z
+           M138 104 H180 A21 21 0 0 1 180 146 H138 Z"
+      />
+    </svg>
+  );
+}
+
 /** Page shell. The subtitle states the product's central claim, because the
  *  privacy behaviour is the feature — not a footnote further down the page. */
 export function Layout({ children, wallet }: { children: ReactNode; wallet: ReactNode }) {
@@ -7,7 +28,7 @@ export function Layout({ children, wallet }: { children: ReactNode; wallet: Reac
     <div className="shell">
       <header className="site-header">
         <div className="brand">
-          <span className="mark" aria-hidden="true" />
+          <ParityMark />
           <div>
             <h1>Parity</h1>
             <p className="tagline">

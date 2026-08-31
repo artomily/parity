@@ -6,6 +6,26 @@ import type { DemoState } from "./state";
 import { WORKFORCE, payGap } from "./state";
 
 const euro = (n: number) => `€${n.toLocaleString("en-IE", { maximumFractionDigits: 0 })}`;
+export function ParityMark() {
+  return (
+    <svg className="mark" viewBox="0 0 320 320" aria-hidden="true">
+      <defs>
+        <linearGradient id="parity-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FF9838" />
+          <stop offset="1" stopColor="#F26F1A" />
+        </linearGradient>
+      </defs>
+      <rect width="320" height="320" rx="76" fill="url(#parity-mark)" />
+      <path
+        fill="#ffffff"
+        fillRule="evenodd"
+        d="M98 70 H182 A53 53 0 0 1 182 176 H138 V250 H98 Z
+           M138 104 H180 A21 21 0 0 1 180 146 H138 Z"
+      />
+    </svg>
+  );
+}
+
 const short = (a: string) => (a.length > 18 ? `${a.slice(0, 10)}…${a.slice(-6)}` : a);
 
 function WalletConnect({ state }: { state: DemoState }) {
@@ -76,7 +96,7 @@ export function ParityApp({
     <div className="shell">
       <header className="site-header">
         <div className="brand">
-          <span className="mark" />
+          <ParityMark />
           <div>
             <h1>Parity</h1>
             <p className="tagline">
@@ -130,7 +150,10 @@ export function ParityApp({
 
             <div className="panels">
               <section className="panel">
-                <h2>1 · The employer files</h2>
+                <h2>
+                  <span className="step">1</span>
+                  The employer files
+                </h2>
                 <p className="lede">
                   The payroll snapshot is committed as a Merkle root, and the published figures are
                   computed from that same snapshot <strong>inside one circuit</strong>. There is no
@@ -168,7 +191,10 @@ export function ParityApp({
               </section>
 
               <section className="panel">
-                <h2>2 · What became public</h2>
+                <h2>
+                  <span className="step">2</span>
+                  What became public
+                </h2>
                 {!committed ? (
                   <p className="empty">No payroll committed yet.</p>
                 ) : (
@@ -200,7 +226,10 @@ export function ParityApp({
               </section>
 
               <section className="panel">
-                <h2>3 · Each worker checks their own row</h2>
+                <h2>
+                  <span className="step">3</span>
+                  Each worker checks their own row
+                </h2>
                 <p className="lede">
                   A worker proves in zero knowledge that the record filed under their identity
                   matches their own payslip. If it does not, they can prove <em>that</em> instead —
@@ -230,7 +259,10 @@ export function ParityApp({
               </section>
 
               <section className="panel wide">
-                <h2>4 · Coverage — how much of the filing is independently attested</h2>
+                <h2>
+                  <span className="step">4</span>
+                  Coverage — how much of the filing is independently attested
+                </h2>
                 <div className="coverage">
                   <div className="bar">
                     <span className="fill confirmed" style={{ width: `${confirmedPct}%` }} />

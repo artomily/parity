@@ -1,5 +1,6 @@
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { BrowserWindow, ClickRing, Cursor } from "./ui/Chrome";
+import { ParityMark } from "./ui/ParityApp";
 import { ParityApp } from "./ui/ParityApp";
 import { honestLedger, initialState, tamperedLedger, type DemoState } from "./ui/state";
 import { resolve, type Action } from "./ui/choreo";
@@ -19,17 +20,17 @@ const TAIL = 1.0;
  * `lower()` adjusts a target for the moments when one is showing.
  */
 const AT = {
-  connect: [1086, 45] as [number, number],
-  deploy: [201, 510] as [number, number],
-  commit: [188, 564] as [number, number],
-  tampered: [208, 422] as [number, number],
-  worker: [971, 280] as [number, number],
-  confirm: [903, 414] as [number, number],
-  dispute: [903, 467] as [number, number],
-  idle: [660, 240] as [number, number],
+  connect: [1075, 42] as [number, number],
+  deploy: [198, 507] as [number, number],
+  commit: [185, 566] as [number, number],
+  tampered: [198, 409] as [number, number],
+  worker: [982, 214] as [number, number],
+  confirm: [925, 362] as [number, number],
+  dispute: [923, 421] as [number, number],
+  idle: [660, 228] as [number, number],
 };
 
-const BANNER = 60;
+const BANNER = 68;
 const lower = ([x, y]: [number, number]): [number, number] => [x, y + BANNER];
 
 const CONTRACT = "0200a3f19c4e7b5d08ad2c61f4e9b7302c8d15af6e";
@@ -53,8 +54,8 @@ type Scene = {
 /** The connected scenes open scrolled to the action row, as a user would be;
  *  panel 4 sits further down the page, exactly as it does in the real app. */
 const SCROLL_TOP = 0;
-const SCROLL_ACTIONS = 220;
-const SCROLL_COVERAGE = 440;
+const SCROLL_ACTIONS = 272;
+const SCROLL_COVERAGE = 620;
 
 const honest = honestLedger();
 const tampered = tamperedLedger();
@@ -88,6 +89,7 @@ const SCENES: Scene[] = [
     actions: [
       { at: 5.4, moveTo: AT.deploy },
       { at: 6.2, click: true, patch: { busy: "Deploying the filing contract…" } },
+      { at: 6.6, moveTo: lower(AT.deploy) },
       { at: 8.4, patch: { busy: null, contractAddress: CONTRACT, okTx: TX } },
       { at: 9.2, moveTo: lower(AT.commit) },
       { at: 10.0, click: true, patch: { busy: "Proving and committing the payroll…", okTx: null } },
@@ -102,20 +104,20 @@ const SCENES: Scene[] = [
     startCursor: lower(AT.idle),
     startScroll: SCROLL_ACTIONS,
     actions: [
-      { at: 2.0, moveTo: [560, 215] },
-      { at: 7.5, moveTo: [700, 252] },
-      { at: 11.0, moveTo: [700, 285] },
-      { at: 14.5, moveTo: [660, 340] },
+      { at: 2.0, moveTo: [545, 188] },
+      { at: 7.5, moveTo: [700, 260] },
+      { at: 11.0, moveTo: [700, 304] },
+      { at: 14.5, moveTo: [660, 368] },
     ],
     caption: "Totals become public. Salaries never do.",
   },
   {
     id: "s5-confirm",
-    base: connected({ contractAddress: CONTRACT, committed: true, ledger: honest }),
-    startCursor: AT.idle,
+    base: connected({ contractAddress: CONTRACT, committed: true, okTx: TX, ledger: honest }),
+    startCursor: lower(AT.idle),
     startScroll: SCROLL_ACTIONS,
     actions: [
-      { at: 3.4, moveTo: AT.confirm },
+      { at: 3.4, moveTo: lower(AT.confirm) },
       { at: 4.2, click: true, patch: { busy: "Proving your record…" } },
       { at: 6.0, patch: { busy: null, ledger: { ...honest, confirmations: 1 }, selected: 1 } },
       { at: 7.0, click: true, patch: { busy: "Proving your record…" } },
@@ -124,17 +126,17 @@ const SCENES: Scene[] = [
       { at: 11.0, patch: { busy: null, ledger: { ...honest, confirmations: 3 }, selected: 3 } },
       { at: 11.8, click: true, patch: { busy: "Proving your record…" } },
       { at: 13.4, patch: { busy: null, ledger: { ...honest, confirmations: 4 } } },
-      { at: 14.2, moveTo: [660, 200], scrollTo: SCROLL_COVERAGE },
+      { at: 14.2, moveTo: [660, 260], scrollTo: SCROLL_COVERAGE },
     ],
     caption: "Proved in zero knowledge, one worker at a time",
   },
   {
     id: "s6-tamper",
-    base: connected({ mode: "tampered" }),
-    startCursor: AT.idle,
+    base: connected({ mode: "tampered", okTx: TX }),
+    startCursor: lower(AT.idle),
     startScroll: SCROLL_ACTIONS,
     actions: [
-      { at: 1.6, moveTo: AT.deploy },
+      { at: 1.6, moveTo: lower(AT.deploy) },
       { at: 2.4, click: true, patch: { busy: "Deploying the filing contract…" } },
       { at: 4.0, patch: { busy: null, contractAddress: CONTRACT, okTx: TX } },
       { at: 4.8, moveTo: lower(AT.commit) },
@@ -181,7 +183,7 @@ const SCENES: Scene[] = [
           ledger: { ...tampered, confirmations: 3, disputes: 1 },
         },
       },
-      { at: 16.2, moveTo: [660, 200], scrollTo: SCROLL_COVERAGE },
+      { at: 16.2, moveTo: [660, 260], scrollTo: SCROLL_COVERAGE },
     ],
     caption: "The lie surfaces. The pay does not.",
   },
@@ -238,7 +240,7 @@ function TitleCard({ durationInFrames }: { durationInFrames: number }) {
   });
   return (
     <AbsoluteFill className="title-card" style={{ opacity }}>
-      <span className="mark" />
+      <ParityMark />
       <h1>Parity</h1>
       <p>A gender pay-gap filing that can be verified — without anyone seeing a single salary.</p>
     </AbsoluteFill>
@@ -250,7 +252,7 @@ function EndCard() {
   const opacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: "clamp" });
   return (
     <AbsoluteFill className="title-card" style={{ opacity }}>
-      <span className="mark" />
+      <ParityMark />
       <h1>Parity</h1>
       <p>Verifiable pay-gap reporting, built on Midnight.</p>
       <div className="links">

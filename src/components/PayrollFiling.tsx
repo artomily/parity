@@ -60,7 +60,10 @@ export function PayrollFiling({
     <div className="panels">
       {/* ---------------- 1. Employer ---------------- */}
       <section className="panel">
-        <h2>1 · The employer files</h2>
+        <h2>
+          <span className="step">1</span>
+          The employer files
+        </h2>
         <p className="lede">
           The payroll snapshot is committed as a Merkle root, and the published figures are computed
           from that same snapshot <strong>inside one circuit</strong>. There is no step where a gap
@@ -111,7 +114,10 @@ export function PayrollFiling({
 
       {/* ---------------- 2. Published figures ---------------- */}
       <section className="panel">
-        <h2>2 · What became public</h2>
+        <h2>
+          <span className="step">2</span>
+          What became public
+        </h2>
         {!committed ? (
           <p className="empty">No payroll committed yet.</p>
         ) : (
@@ -144,7 +150,10 @@ export function PayrollFiling({
 
       {/* ---------------- 3. Worker attestation ---------------- */}
       <section className="panel">
-        <h2>3 · Each worker checks their own row</h2>
+        <h2>
+          <span className="step">3</span>
+          Each worker checks their own row
+        </h2>
         <p className="lede">
           A worker proves in zero knowledge that the record filed under their identity matches their
           own payslip. If it does not, they can prove <em>that</em> instead — without revealing
@@ -183,7 +192,10 @@ export function PayrollFiling({
 
       {/* ---------------- 4. Coverage ---------------- */}
       <section className="panel wide">
-        <h2>4 · Coverage — how much of the filing is independently attested</h2>
+        <h2>
+          <span className="step">4</span>
+          Coverage — how much of the filing is independently attested
+        </h2>
         <div className="coverage">
           <div className="bar" role="img" aria-label={`${coverage}% confirmed`}>
             <span className="fill confirmed" style={{ width: `${total ? (confirmations / total) * 100 : 0}%` }} />
