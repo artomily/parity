@@ -73,7 +73,9 @@ Image: [`brand/posts/post-4.png`](../brand/posts/post-4.png)
 >
 > parity-tech.vercel.app
 
-*267 characters.* Ends on the demo. Attach docs/demo/parity-demo.mp4 (or a trimmed 60-90s cut) directly to this post — native video outperforms a link.
+*267 characters.* Ends on the demo. Attach `docs/demo/parity-demo.mp4` directly rather than
+linking it — native video outperforms a link. Put the YouTube cut
+(https://youtu.be/luBz-gQ5mzI) in a reply, so the post itself keeps the video inline.
 
 ---
 
