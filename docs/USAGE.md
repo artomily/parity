@@ -16,7 +16,7 @@ You will play both roles: first the employer filing a payroll, then the workers 
 3. **A proving setup.** Lace can generate proofs for you. If your wallet asks for a proof
    server instead, run one locally:
    ```
-   docker run -p 6300:6300 midnightnetwork/proof-server
+   docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0
    ```
 4. That's all. No account, no sign-up, no personal data.
 
@@ -106,7 +106,7 @@ few seconds — the app polls for the wallet for five seconds before giving up.
 
 **Proof generation hangs, or the wallet reports no proof server.**
 Your wallet does not support delegated proving. Start a local proof server with
-`docker run -p 6300:6300 midnightnetwork/proof-server` and set its URL (`http://localhost:6300`)
+`docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0` and set its URL (`http://localhost:6300`)
 in the wallet's settings.
 
 **"The filed record does not match this payslip."**

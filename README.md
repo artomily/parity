@@ -116,9 +116,11 @@ React 19 + Vite 7 · TypeScript · Vitest · GitHub Actions
    ```
    npm run compact
    ```
-4. Start a local proof server, only if your wallet cannot prove for you:
+4. Start a local proof server, only if your wallet cannot prove for you. The image tag must
+   match the `@midnight-ntwrk/ledger-v8` version this repo pins — a mismatched proof server
+   fails with a bare "Failed to prove transaction" and logs nothing useful:
    ```
-   docker run -p 6300:6300 midnightnetwork/proof-server
+   docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0
    ```
 5. Run the app:
    ```
