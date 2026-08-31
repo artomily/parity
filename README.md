@@ -62,6 +62,34 @@ verifiable state and private witnesses live in one contract, and where `disclose
 complete disclosure surface auditable by a compliance reviewer rather than a promise about what a
 server does.
 
+## How It Works
+
+**The employer files.** Salaries go *in* to a circuit; only a commitment and per-group
+aggregates come *out*. Nothing on the right-hand side can identify a person.
+
+```mermaid
+flowchart LR
+  S["every individual salary<br/><i>private witness</i>"]:::priv
+  X["commitPayroll<br/>circuit"]:::circ
+  R["payrollRoot"]:::pub
+  A["headcount and pay total<br/>per group"]:::pub
+  C["committedCount"]:::pub
+
+  S --> X
+  X -- disclose --> R
+  X -- disclose --> A
+  X -- disclose --> C
+
+  classDef priv fill:#FFF4E8,stroke:#F26F1A,color:#33404F
+  classDef circ fill:#F7F8FA,stroke:#6B7A8C,color:#33404F
+  classDef pub fill:#EAF6F0,stroke:#2E9E6B,color:#33404F
+```
+
+The root and the totals leave the **same circuit invocation**, so there is no point at which the
+gap could be computed from one dataset while a different one is committed. That is the whole
+guarantee on the employer's side — and on its own it is not enough, because it says nothing
+about whether the committed payroll is honest. That is what the workers are for.
+
 ## Privacy Model
 
 - **What is PUBLIC (on-chain, anyone can see):**
@@ -87,6 +115,39 @@ server does.
   - *Worker:* "the record filed under my identity matches my own payslip" — or, via
     `disputeRecord`, "it does not" — without revealing which leaf is theirs, what they earn, or
     what the employer claimed they earn.
+
+### One worker, one check
+
+The dispute path is the whole product. A worker whose filed record does not match their payslip
+*cannot* produce a confirmation proof — the failure is arithmetic, not a policy decision — and
+the dispute they file instead is what makes the tampering visible.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant W as Worker's browser
+    participant C as Circuit
+    participant L as Public ledger
+
+    W->>C: payslip · identity key · Merkle path
+    Note right of W: private witnesses,<br/>never transmitted
+    L-->>C: payrollRoot
+    C->>C: recompute own leaf, walk path to root
+
+    alt filed record matches the payslip
+        C->>L: nullifier · confirmations + 1
+    else filed record does not match
+        C--xW: no confirmation proof exists
+        W->>C: disputeRecord, same witnesses
+        C->>L: nullifier · disputes + 1
+    end
+
+    Note over L: no salary, no identity,<br/>no row index ever appears
+```
+
+The nullifier is what makes this count for something: it is derived from the worker's identity
+key and the filing, so each worker can act exactly once per filing, and the coverage figure
+cannot be inflated by repeating a confirmation.
 
 **Honest scope note.** An aggregate over a tiny group still leaks: with one worker in a group,
 the group total *is* their salary. The contract therefore enforces a minimum publishable group
