@@ -4,7 +4,7 @@ Four posts for the launch of [@paritycompany](https://x.com/paritycompany), in o
 Post them over a couple of days rather than all at once; post 1 is the pin.
 
 Before posting, check the Midnight account's real handle and add the mention to post 1 —
-do not guess it. The contract address is `ec99ff0a…5dc9` on Preview, if you want it in a reply.
+do not guess it. The contract address is `ed713051…fafd` on Preprod, if you want it in a reply.
 
 ---
 

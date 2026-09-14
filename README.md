@@ -20,10 +20,19 @@ tampered filing is caught by a worker's dispute while no salary is ever exposed.
 
 | Network | Address                                                            |
 |---------|--------------------------------------------------------------------|
-| Preview | `ec99ff0a359617f95d7fc26f434c8e96d6ba56b1852e7eeef7b3222b9b645dc9` |
+| Preprod | `ed713051c3d2e0e138c4c509f976746de1f741492321f51e616d537fd641fafd` |
 
-Deployed with [`scripts/deploy-cli.ts`](scripts/deploy-cli.ts) against a local proof server
-matching the pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
+Deployed on Midnight Preprod (block 2,544,461, deploy tx
+`cb1c779bd359bc5e93621030d54701536fca0b0f9a62818a0c37a39ad533fa48`). A headless alternative is
+[`scripts/deploy-cli.ts`](scripts/deploy-cli.ts), run against a local proof server matching the
+pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
+
+## Level 5 — User Validation
+
+- Target: 50 Preprod users
+- Current: 0 / 50
+- See [USERS.md](USERS.md) for wallet addresses
+- See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and changes
 
 ## What This Product Does
 
@@ -161,7 +170,7 @@ React 19 + Vite 7 · TypeScript · Vitest · GitHub Actions
 ## Prerequisites
 
 - [Lace wallet](https://www.lace.io/) browser extension, funded from the
-  [Preview faucet](https://midnight-tmnight-preview.nethermind.dev/)
+  [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/)
 - Node.js v22
 - Docker (only if your wallet does not support delegated proving — see below)
 
