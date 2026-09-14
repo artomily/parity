@@ -2,12 +2,15 @@
 
 ## Feedback Collection Method
 
-- **Form:** a short feedback form (link in the app footer and in every outreach post) asking:
-  1. Your wallet address (so the action can be verified on-chain)
-  2. Which role did you try — employer, worker, or both?
-  3. Did you finish the flow? If not, where did you stop?
-  4. What confused you? (free text)
-  5. How likely are you to recommend Parity, 1–5?
+- **Form:** a 1-minute Google Form —
+  [Parity — Tester Feedback](https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform) —
+  linked from the landing page, the app (after every successful transaction), the site footer,
+  and every outreach post. It asks:
+  1. Midnight Preprod wallet address (`mn_addr_preprod1…`, validated)
+  2. Did you complete the flow? (yes / partly / got stuck)
+  3. Where did you get stuck, or what confused you?
+  4. One thing you'd change
+  5. How easy was it? (1–5)
 - **DMs / Discord / Telegram:** replies to outreach messages are copied into the log below.
 - **On-chain signal:** each tester's confirm/dispute transaction is checked against the
   contract to confirm they actually completed the flow.
