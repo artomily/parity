@@ -25,6 +25,8 @@ export type FilingMode = "honest" | "tampered";
 /** The transaction the user is waiting on, from proof generation to finality. */
 export type TxProgress = {
   action: string;
+  /** What the user can see changed once the transaction is final. */
+  outcome: string;
   phase: TxPhase | "confirmed" | "failed";
   txId?: string;
   startedAt: number;
@@ -128,13 +130,13 @@ export function useMidnight() {
 
   /** Swap the local private state to the actor about to prove, then run `fn`. */
   const runAs = useCallback(
-    async (label: string, state: unknown, fn: (c: FoundParityContract) => Promise<{ public: { txId: string } }>) => {
+    async (label: string, outcome: string, state: unknown, fn: (c: FoundParityContract) => Promise<{ public: { txId: string } }>) => {
       const providers = providersRef.current;
       if (!providers || !contractAddress) return;
       setBusy(label);
       setError(null);
       setLastResult(null);
-      setProgress({ action: label, phase: "proving", startedAt: Date.now() });
+      setProgress({ action: label, outcome, phase: "proving", startedAt: Date.now() });
       try {
         if (!contractRef.current) {
           contractRef.current = await joinFiling(providers, contractAddress, state as never);
@@ -160,7 +162,12 @@ export function useMidnight() {
     setBusy("Deploying filing contract…");
     setError(null);
     setLastResult(null);
-    setProgress({ action: "Deploying filing contract…", phase: "proving", startedAt: Date.now() });
+    setProgress({
+      action: "Deploying filing contract…",
+      outcome: "Your new filing is live. Next: commit the payroll in step 1.",
+      phase: "proving",
+      startedAt: Date.now(),
+    });
     try {
       const period = crypto.getRandomValues(new Uint8Array(32));
       const category = crypto.getRandomValues(new Uint8Array(32));
@@ -203,7 +210,10 @@ export function useMidnight() {
 
   const commitPayroll = useCallback(
     () =>
-      runAs("Proving aggregates & committing payroll…", tree.employerState(), (c) =>
+      runAs(
+        "Proving aggregates & committing payroll…",
+        "Payroll committed. The pay gap is now public in step 2 — next, check a worker's row in step 3.",
+        tree.employerState(), (c) =>
         c.callTx.commitPayroll(),
       ),
     [runAs, tree],
@@ -211,7 +221,10 @@ export function useMidnight() {
 
   const confirmRecord = useCallback(
     (index: number) =>
-      runAs("Proving your record matches your payslip…", tree.workerState(index), (c) =>
+      runAs(
+        "Proving your record matches your payslip…",
+        "Record confirmed. Coverage in step 4 now counts it as independently attested.",
+        tree.workerState(index), (c) =>
         c.callTx.confirmRecord(),
       ),
     [runAs, tree],
@@ -219,7 +232,10 @@ export function useMidnight() {
 
   const disputeRecord = useCallback(
     (index: number) =>
-      runAs("Proving the filed record differs from your payslip…", tree.workerState(index), (c) =>
+      runAs(
+        "Proving the filed record differs from your payslip…",
+        "Dispute recorded. Step 4 now shows this row as disputed — neither figure was revealed.",
+        tree.workerState(index), (c) =>
         c.callTx.disputeRecord(),
       ),
     [runAs, tree],
