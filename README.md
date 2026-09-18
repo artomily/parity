@@ -238,11 +238,11 @@ See [docs/FEEDBACK.md](docs/FEEDBACK.md).
 
 Top changes planned from user feedback:
 
-80 testers: 75% completed the full flow, 25% partly; average ease 4.64 / 5.
+81 testers: 75% completed the full flow, 25% partly; average ease 4.64 / 5.
 
 | Change | Testers asking |
 |--------|----------------|
-| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 23 |
+| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 24 |
 | Clear submitted/confirmed states, a more prominent success banner, plainer confirmation wording | 17 |
 | Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 |
 | Waiting message that explains proof generation and expected time | 7 |
