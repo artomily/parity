@@ -33,7 +33,7 @@ pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 |---------|--------|---------|--------------------------------------|
 | Level 5 | 50     |       | [USERS.md](USERS.md)                 |
 | Level 6 | 20     |       | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
-| Total   | 70     | 80      |                                      |
+| Total   | 70     | 81      |                                      |
 
 See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and the changes it drove.
 
