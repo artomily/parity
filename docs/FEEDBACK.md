@@ -17,12 +17,6 @@
 
 ## Raw Feedback Log
 
-**Updating this page:** responses land in the
-[tester sheet](https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit#gid=1940241653).
-The current log is a separate tester dataset supplied by the Parity team (not the Google Form
-responses), stored in `docs/feedback/responses.csv`; run `npm run feedback:sync` after editing it. The script rewrites the
-log, themes and Level 6 tables below plus the wallet lists in `USERS.md` / `LAUNCH_USERS.md`.
-
 Testers are identified by wallet address only — no names are collected or published.
 
 <!-- feedback:log:start -->
