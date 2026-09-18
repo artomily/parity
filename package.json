@@ -15,7 +15,8 @@
     "test:compile": "npm run compact && vitest run",
     "typecheck": "tsc --noEmit",
     "deploy:preprod": "NODE_OPTIONS=--max-old-space-size=12288 tsx scripts/deploy-cli.ts",
-    "deploy:preview": "MIDNIGHT_NETWORK=preview NODE_OPTIONS=--max-old-space-size=12288 tsx scripts/deploy-cli.ts"
+    "deploy:preview": "MIDNIGHT_NETWORK=preview NODE_OPTIONS=--max-old-space-size=12288 tsx scripts/deploy-cli.ts",
+    "feedback:sync": "node scripts/sync-feedback.mjs"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.1",
