@@ -370,3 +370,18 @@ a.button {
   .defs div { grid-template-columns: 1fr; gap: 2px; }
   .nav { gap: 14px; }
 }
+
+/* ---------------- transaction stepper ---------------- */
+
+.tx-status { flex-basis: 100%; }
+.stepper { display: flex; flex-wrap: wrap; gap: 8px 18px; list-style: none; margin: 0; padding: 0; }
+.step-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.step-item.active { color: var(--ink); font-weight: 600; }
+.step-item.done { color: var(--ok); }
+.step-dot {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  font-size: 12px; font-weight: 700; background: var(--pending); color: var(--muted);
+}
+.step-item.active .step-dot { background: var(--orange); color: #fff; }
+.step-item.done .step-dot { background: var(--ok); color: #fff; }
+.tx-id { margin: 10px 0 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }

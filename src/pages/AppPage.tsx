@@ -2,6 +2,7 @@ import { useMidnight } from "../hooks/useMidnight.js";
 import { Layout } from "../components/Layout.js";
 import { WalletConnect } from "../components/WalletConnect.js";
 import { PayrollFiling } from "../components/PayrollFiling.js";
+import { TxStepper } from "../components/TxStepper.js";
 import { CONTRACT_ADDRESS, FAUCET_URL, FEEDBACK_URL, LACE_URL } from "../utils/network.js";
 
 export function AppPage() {
@@ -88,6 +89,7 @@ export function AppPage() {
               <span className="spinner" aria-hidden="true" />
               {m.busy}
               <em>Proof generation runs locally — your private inputs never leave this machine.</em>
+              {m.progress && <TxStepper progress={m.progress} />}
             </div>
           )}
 
@@ -102,7 +104,7 @@ export function AppPage() {
 
           {m.lastResult && !m.busy && (
             <div className="banner ok" role="status">
-              Submitted on-chain · <code>{m.lastResult.txId.slice(0, 24)}…</code>
+              {m.progress && <TxStepper progress={m.progress} />}
               <a className="button ghost" href={FEEDBACK_URL} target="_blank" rel="noreferrer">
                 Share feedback (1 min)
               </a>

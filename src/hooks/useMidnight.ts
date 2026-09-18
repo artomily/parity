@@ -7,6 +7,7 @@ import {
   friendlyError,
   buildProviders,
   type ParityProviders,
+  type TxPhase,
 } from "../midnight/providers.js";
 import { deployFiling, joinFiling, PRIVATE_STATE_ID } from "../midnight/deploy.js";
 import { ledger, type Ledger } from "../../managed/contract/index.js";
@@ -20,6 +21,14 @@ setNetworkId(NETWORK_ID);
 
 export type WalletState = "detecting" | "no-wallet" | "ready" | "connecting" | "connected";
 export type FilingMode = "honest" | "tampered";
+
+/** The transaction the user is waiting on, from proof generation to finality. */
+export type TxProgress = {
+  action: string;
+  phase: TxPhase | "confirmed" | "failed";
+  txId?: string;
+  startedAt: number;
+};
 
 type FoundParityContract = Awaited<ReturnType<typeof joinFiling>>;
 
@@ -41,6 +50,7 @@ export function useMidnight() {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{ txId: string } | null>(null);
+  const [progress, setProgress] = useState<TxProgress | null>(null);
 
   const providersRef = useRef<ParityProviders | null>(null);
   const contractRef = useRef<FoundParityContract | null>(null);
@@ -84,7 +94,9 @@ export function useMidnight() {
       setConnectedAPI(api);
       setAddress(unshieldedAddress);
       setWalletState("connected");
-      providersRef.current = await buildProviders(api);
+      providersRef.current = await buildProviders(api, (phase, txId) =>
+        setProgress((p) => (p ? { ...p, phase, txId: txId ?? p.txId } : p)),
+      );
     } catch (e) {
       setError(friendlyError(e));
       setWalletState("ready");
@@ -100,6 +112,7 @@ export function useMidnight() {
     setContractAddress(DEFAULT_CONTRACT);
     setLedgerState(null);
     setLastResult(null);
+    setProgress(null);
   }, []);
 
   const refreshLedger = useCallback(async () => {
@@ -121,6 +134,7 @@ export function useMidnight() {
       setBusy(label);
       setError(null);
       setLastResult(null);
+      setProgress({ action: label, phase: "proving", startedAt: Date.now() });
       try {
         if (!contractRef.current) {
           contractRef.current = await joinFiling(providers, contractAddress, state as never);
@@ -129,8 +143,10 @@ export function useMidnight() {
         }
         const result = await fn(contractRef.current);
         setLastResult({ txId: result.public.txId });
+        setProgress((p) => (p ? { ...p, phase: "confirmed", txId: result.public.txId } : p));
         await refreshLedger();
       } catch (e) {
+        setProgress((p) => (p ? { ...p, phase: "failed" } : p));
         setError(friendlyError(e));
       } finally {
         setBusy(null);
@@ -143,6 +159,8 @@ export function useMidnight() {
     if (!providersRef.current) return;
     setBusy("Deploying filing contract…");
     setError(null);
+    setLastResult(null);
+    setProgress({ action: "Deploying filing contract…", phase: "proving", startedAt: Date.now() });
     try {
       const period = crypto.getRandomValues(new Uint8Array(32));
       const category = crypto.getRandomValues(new Uint8Array(32));
@@ -154,7 +172,11 @@ export function useMidnight() {
       );
       contractRef.current = deployed;
       setContractAddress(deployed.deployTxData.public.contractAddress);
+      const txId = deployed.deployTxData.public.txId;
+      setLastResult({ txId });
+      setProgress((p) => (p ? { ...p, phase: "confirmed", txId } : p));
     } catch (e) {
+      setProgress((p) => (p ? { ...p, phase: "failed" } : p));
       setError(friendlyError(e));
     } finally {
       setBusy(null);
@@ -221,6 +243,7 @@ export function useMidnight() {
     disputeRecord,
     busy,
     lastResult,
+    progress,
     filingMode,
     setFilingMode,
     workerIndex,
