@@ -6,11 +6,12 @@
 > Parity lets an employer publish a gender pay-gap figure that anyone can verify — and lets each
 > worker confirm or dispute their own record in zero knowledge, without any salary being revealed.
 >
-> 1. Install Lace and grab tNIGHT from the Preprod faucet
+> 1. Install Lace, grab tNIGHT from the Preprod faucet, and wait a few minutes for DUST
 > 2. Open https://parity-tech.vercel.app/ and connect Lace
 > 3. File a payroll, then confirm (or dispute) a record
 >
-> Then drop your wallet address + a line of feedback in the form or DM me. Takes ~5 minutes 🙏
+> Takes ~5 minutes. Then drop your wallet address + a line of feedback here (1 min):
+> https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform 🙏
 
 ## b) X post
 
@@ -28,6 +29,7 @@
 > I need 50 real testers on Preprod. Would you spare 5 minutes?
 > 1. Install the Lace wallet and fund it from the Preprod faucet
 > 2. Open https://parity-tech.vercel.app/, connect, and walk through the employer + worker flow
-> 3. Send me your wallet address and one honest thing that confused you or you'd change
+> 3. Fill in the 1-minute form with your wallet address and one honest thing you'd change:
+>    https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform
 >
 > Happy to return the favour on your project anytime. Thanks!

@@ -2,6 +2,7 @@ import { href } from "../hooks/useRoute.js";
 import {
   CONTRACT_ADDRESS,
   FAUCET_URL,
+  FEEDBACK_URL,
   LACE_URL,
   NETWORK_LABEL,
   VIDEO_URL,
@@ -227,6 +228,10 @@ export function Landing() {
           <li>Wait a few minutes for DUST to generate</li>
           <li>
             <a href={href("app")}>Launch the app</a> and connect
+          </li>
+          <li>
+            Tell us how it went in the{" "}
+            <a href={FEEDBACK_URL} target="_blank" rel="noreferrer">1-minute feedback form</a>
           </li>
         </ol>
       </section>

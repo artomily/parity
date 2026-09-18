@@ -2,7 +2,7 @@ import { useMidnight } from "../hooks/useMidnight.js";
 import { Layout } from "../components/Layout.js";
 import { WalletConnect } from "../components/WalletConnect.js";
 import { PayrollFiling } from "../components/PayrollFiling.js";
-import { CONTRACT_ADDRESS, FAUCET_URL, LACE_URL } from "../utils/network.js";
+import { CONTRACT_ADDRESS, FAUCET_URL, FEEDBACK_URL, LACE_URL } from "../utils/network.js";
 
 export function AppPage() {
   const m = useMidnight();
@@ -103,6 +103,9 @@ export function AppPage() {
           {m.lastResult && !m.busy && (
             <div className="banner ok" role="status">
               Submitted on-chain · <code>{m.lastResult.txId.slice(0, 24)}…</code>
+              <a className="button ghost" href={FEEDBACK_URL} target="_blank" rel="noreferrer">
+                Share feedback (1 min)
+              </a>
             </div>
           )}
 

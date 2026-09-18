@@ -11,5 +11,7 @@ export const FAUCET_URL = "https://midnight-tmnight-preprod.nethermind.dev/";
 export const REPO_URL = "https://github.com/artomily/parity";
 export const VIDEO_URL = "https://youtu.be/luBz-gQ5mzI";
 export const X_URL = "https://x.com/paritycompany";
+export const FEEDBACK_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform";
 
 export const shortHex = (s: string) => (s.length > 18 ? `${s.slice(0, 8)}…${s.slice(-6)}` : s);

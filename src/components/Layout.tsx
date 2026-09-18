@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { href, type Route } from "../hooks/useRoute.js";
-import { REPO_URL, X_URL, VIDEO_URL, NETWORK_LABEL } from "../utils/network.js";
+import { REPO_URL, X_URL, VIDEO_URL, NETWORK_LABEL, FEEDBACK_URL } from "../utils/network.js";
 
 /** The wordmark's P, inline so it needs no network request and stays crisp. */
 export function ParityMark({ className = "mark" }: { className?: string }) {
@@ -78,6 +78,7 @@ export function Layout({
           <a href={href("app")}>App</a>
           <a href={href("whitepaper")}>Whitepaper</a>
           <a href={VIDEO_URL} target="_blank" rel="noreferrer">Demo video</a>
+          <a href={FEEDBACK_URL} target="_blank" rel="noreferrer">Feedback</a>
           <a href={REPO_URL} target="_blank" rel="noreferrer">GitHub</a>
           <a href={X_URL} target="_blank" rel="noreferrer">@paritycompany</a>
         </div>
