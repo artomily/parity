@@ -62,11 +62,11 @@ function toResponses(rows) {
 // Order matters: first matching theme wins for each "one thing you'd change" answer.
 const THEMES = [
   { name: 'Transaction status & progress visibility', re: /transaction|status|progress|result|history|activity|real time/i,
-    fix: 'Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link' },
+    fix: 'Transaction stepper (Building proof → Approve in Lace → Submitted → Confirmed) with the full tx id', commit: '9239cba' },
   { name: 'Loading / waiting-state clarity', re: /loading|waiting|wait/i,
-    fix: 'Replace the generic spinner with a waiting message that explains proof generation and expected time' },
+    fix: 'Waiting message for each step that explains what is happening, how long it usually takes and the time elapsed', commit: 'c179197' },
   { name: 'Confirmation & success feedback', re: /confirm|success|completion|submitted|final|notification|feedback/i,
-    fix: 'Clear "Submitted" and "Confirmed" states, a more prominent success banner, plainer confirmation wording' },
+    fix: 'Explicit "Confirmed on Midnight Preprod" banner that says what changed and what to do next, with a copyable tx id', commit: 'c78669d' },
   { name: 'Wallet connection state', re: /wallet|connect/i,
     fix: 'Persistent connected-wallet badge in the header plus step-by-step Lace connection instructions' },
   { name: 'Onboarding, guidance & wording', re: /onboard|guide|explan|instruction|context|tooltip|wording|term|call to action|next-step|first screen|new users|quick-start|examples/i,
@@ -151,7 +151,13 @@ async function main() {
   between('docs/FEEDBACK.md', 'feedback:level6', [
     '| Change | User Feedback That Triggered It | Status |', '|--------|--------------------------------|--------|',
     ...grouped.filter((t) => t.fix).slice(0, 5).map((t) =>
-      `| ${t.fix} | ${t.hits.length} testers — e.g. "${esc(t.hits[0].change)}" | Planned |`),
+      `| ${t.fix} | ${t.hits.length} testers — e.g. "${esc(t.hits[0].change)}" | ${t.commit ? `Done (${t.commit})` : 'Planned'} |`),
+  ].join('\n'));
+
+  between('docs/FEEDBACK.md', 'feedback:changed', [
+    '| Change | Reason | Commit |', '|--------|--------|--------|',
+    ...grouped.filter((t) => t.commit).map((t) =>
+      `| ${t.fix} | ${t.hits.length} testers asked for ${t.name.toLowerCase()} | ${t.commit} |`),
   ].join('\n'));
 
   between('USERS.md', 'users', usersTable(responses.slice(0, LEVEL5_TARGET), 0, LEVEL5_TARGET));

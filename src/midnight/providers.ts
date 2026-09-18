@@ -18,6 +18,9 @@ import type { ParityPrivateState } from "./types.js";
 
 export type ParityProviders = MidnightProviders<ParityCircuitId, string, ParityPrivateState>;
 
+/** Where a transaction is in its life, reported as the providers are called. */
+export type TxPhase = "proving" | "signing" | "submitted";
+
 /** Finds the Lace wallet under `window.midnight`, preferring it over other
  * injected Midnight wallets (e.g. 1AM) that may register first. */
 export function findWallet(): InitialAPI | undefined {
@@ -77,7 +80,10 @@ export type WalletConfig = {
  * (`proverServerUri`, e.g. `http://localhost:6300`) for older wallets that
  * don't yet support delegation.
  */
-export async function buildProviders(connectedAPI: ConnectedAPI): Promise<ParityProviders> {
+export async function buildProviders(
+  connectedAPI: ConnectedAPI,
+  onPhase: (phase: TxPhase, txId?: string) => void = () => {},
+): Promise<ParityProviders> {
   const config = await connectedAPI.getConfiguration();
   const zkConfigProvider = new FetchZkConfigProvider<ParityCircuitId>(
     window.location.origin,
@@ -100,6 +106,12 @@ export async function buildProviders(connectedAPI: ConnectedAPI): Promise<Parity
     proofProvider = httpClientProofProvider(config.proverServerUri, zkConfigProvider);
   }
 
+  const prove = proofProvider.proveTx.bind(proofProvider);
+  proofProvider.proveTx = (tx, cfg) => {
+    onPhase("proving");
+    return prove(tx, cfg);
+  };
+
   const { shieldedCoinPublicKey, shieldedEncryptionPublicKey } =
     await connectedAPI.getShieldedAddresses();
 
@@ -112,6 +124,7 @@ export async function buildProviders(connectedAPI: ConnectedAPI): Promise<Parity
       getCoinPublicKey: () => shieldedCoinPublicKey,
       getEncryptionPublicKey: () => shieldedEncryptionPublicKey,
       balanceTx: async (tx: UnboundTransaction): Promise<FinalizedTransaction> => {
+        onPhase("signing");
         const { tx: balanced } = await connectedAPI.balanceUnsealedTransaction(
           toHex(tx.serialize()),
         );
@@ -121,7 +134,9 @@ export async function buildProviders(connectedAPI: ConnectedAPI): Promise<Parity
     midnightProvider: {
       submitTx: async (tx: FinalizedTransaction) => {
         await connectedAPI.submitTransaction(toHex(tx.serialize()));
-        return tx.identifiers()[0];
+        const txId = tx.identifiers()[0];
+        onPhase("submitted", txId);
+        return txId;
       },
     },
   } as ParityProviders;

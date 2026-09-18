@@ -236,17 +236,17 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 See [docs/FEEDBACK.md](docs/FEEDBACK.md).
 
-Top changes planned from user feedback:
+Top changes from user feedback:
 
 81 testers: 75% completed the full flow, 25% partly; average ease 4.64 / 5.
 
-| Change | Testers asking |
-|--------|----------------|
-| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 24 |
-| Clear submitted/confirmed states, a more prominent success banner, plainer confirmation wording | 17 |
-| Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 |
-| Waiting message that explains proof generation and expected time | 7 |
-| Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 |
+| Change | Testers asking | Status |
+|--------|----------------|--------|
+| Transaction stepper (Building proof → Approve in Lace → Submitted → Confirmed) with the full tx id | 24 | Done (9239cba) |
+| "Confirmed on Midnight Preprod" banner that says what changed and what to do next | 17 | Done (c78669d) |
+| Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 | Planned |
+| Waiting message per step: what is happening, usual duration, time elapsed | 7 | Done (c179197) |
+| Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 | Planned |
 
 Full breakdown in the Level 6 Improvements table in [docs/FEEDBACK.md](docs/FEEDBACK.md).
 
