@@ -118,7 +118,7 @@ async function main() {
   const pct = (x) => `${Math.round((x / n) * 100)}%`;
 
   between('docs/FEEDBACK.md', 'feedback:log', [
-    `_${n} responses from the Parity tester dataset ([responses.csv](feedback/responses.csv))._`,
+    `_${n} responses ([responses.csv](feedback/responses.csv))._`,
     '',
     '| # | Wallet | Completed | Stuck / Confused | One Change | Ease | Date |',
     '|---|--------|-----------|------------------|------------|------|------|',

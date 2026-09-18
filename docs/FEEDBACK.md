@@ -20,7 +20,7 @@
 Testers are identified by wallet address only — no names are collected or published.
 
 <!-- feedback:log:start -->
-_80 responses from the Parity tester dataset ([responses.csv](feedback/responses.csv))._
+_80 responses ([responses.csv](feedback/responses.csv))._
 
 | # | Wallet | Completed | Stuck / Confused | One Change | Ease | Date |
 |---|--------|-----------|------------------|------------|------|------|
