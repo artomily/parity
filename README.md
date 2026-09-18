@@ -31,8 +31,8 @@ pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 
 | Stage   | Target | Current | Wallet list                          |
 |---------|--------|---------|--------------------------------------|
-| Level 5 | 50     | 50      | [USERS.md](USERS.md)                 |
-| Level 6 | 20     | 30      | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
+| Level 5 | 50     |       | [USERS.md](USERS.md)                 |
+| Level 6 | 20     |       | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
 | Total   | 70     | 80      |                                      |
 
 See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and the changes it drove.
