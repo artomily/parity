@@ -27,13 +27,28 @@ jobs:
             https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      - name: Cache Compact toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.compact
+          key: compact-${{ runner.os }}-0.31.1
+
       - name: compact compile
+        env:
+          # `compact update` queries the GitHub API for releases; unauthenticated
+          # runners share an IP-wide 60 req/h limit and fail intermittently.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Pinned: `compact update` with no argument installs whatever the
           # latest toolchain is, and 0.34.0 requires language version 0.26.0
           # while contracts/parity.compact declares 0.23. Bump this together
           # with the pragma and the @midnight-ntwrk/* runtime versions.
-          compact update 0.31.1
+          # Retry with backoff: the GitHub release API can still throttle.
+          for i in 1 2 3 4; do
+            compact update 0.31.1 && break
+            [ "$i" = 4 ] && exit 1
+            sleep $((i * 20))
+          done
           compact --version
           npm run compact
 
