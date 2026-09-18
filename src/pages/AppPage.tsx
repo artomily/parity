@@ -106,8 +106,7 @@ export function AppPage() {
           {m.busy && (
             <div className="banner busy" role="status">
               <span className="spinner" aria-hidden="true" />
-              {m.busy}
-              <em>Proof generation runs locally — your private inputs never leave this machine.</em>
+              <strong>{m.busy}</strong>
               {m.progress && <TxStepper progress={m.progress} />}
             </div>
           )}

@@ -394,3 +394,6 @@ a.button {
 .success-text { display: flex; flex-direction: column; gap: 2px; flex: 1 1 240px; }
 .success-text strong { color: var(--ok); font-size: 16px; }
 .success-text span { font-size: 14px; }
+
+.waiting { margin: 10px 0 0; font-size: 14px; color: var(--ink); max-width: 72ch; }
+.elapsed { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
