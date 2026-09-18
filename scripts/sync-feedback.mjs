@@ -92,8 +92,8 @@ function between(file, tag, body) {
 }
 
 function usersTable(list, offset, target) {
-  const rows = list.map((r, i) => `| ${String(offset + i + 1).padEnd(2)} | \`${r.wallet}\` | ${date} |`);
-  return ['| #  | Wallet Address | Date Added |', '|----|----------------|------------|', ...rows, '',
+  const rows = list.map((r, i) => `| ${String(offset + i + 1).padEnd(2)} | \`${r.wallet}\` |`);
+  return ['| #  | Wallet Address |', '|----|----------------|', ...rows, '',
     `Current count: ${list.length} / ${target}`].join('\n');
 }
 
