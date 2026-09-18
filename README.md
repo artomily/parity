@@ -27,12 +27,15 @@ Deployed on Midnight Preprod (block 2,544,461, deploy tx
 [`scripts/deploy-cli.ts`](scripts/deploy-cli.ts), run against a local proof server matching the
 pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 
-## Level 5 — User Validation
+## User Validation
 
-- Target: 50 Preprod users
-- Current: 0 / 50
-- See [USERS.md](USERS.md) for wallet addresses
-- See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and changes
+| Stage   | Target | Current | Wallet list                          |
+|---------|--------|---------|--------------------------------------|
+| Level 5 | 50     | 50      | [USERS.md](USERS.md)                 |
+| Level 6 | 20     | 30      | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
+| Total   | 70     | 80      |                                      |
+
+See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and the changes it drove.
 
 ## What This Product Does
 
@@ -229,6 +232,40 @@ green badge means the contract in the repo genuinely compiles and its tests genu
 
 See [docs/USAGE.md](docs/USAGE.md).
 
+## Feedback & Iterations
+
+See [docs/FEEDBACK.md](docs/FEEDBACK.md).
+
+Top changes planned from user feedback:
+
+80 testers: 75% completed the full flow, 25% partly; average ease 4.64 / 5.
+
+| Change | Testers asking |
+|--------|----------------|
+| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 23 |
+| Clear submitted/confirmed states, a more prominent success banner, plainer confirmation wording | 17 |
+| Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 |
+| Waiting message that explains proof generation and expected time | 7 |
+| Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 |
+
+Full breakdown in the Level 6 Improvements table in [docs/FEEDBACK.md](docs/FEEDBACK.md).
+
+## Level 6 Users
+
+See [LAUNCH_USERS.md](LAUNCH_USERS.md).
+
 ## Product X Profile
 
 [**@paritycompany**](https://x.com/paritycompany)
+
+## Brand Assets
+
+| Asset | File |
+|-------|------|
+| Logo | [`brand/logo.svg`](brand/logo.svg) · [`brand/logo.png`](brand/logo.png) |
+| Avatar | [`brand/avatar.svg`](brand/avatar.svg) · [`brand/avatar.png`](brand/avatar.png) |
+| X banner | [`brand/x-banner.svg`](brand/x-banner.svg) · [`brand/x-banner.png`](brand/x-banner.png) |
+| Launch post images | [`brand/posts/`](brand/posts/) |
+
+Every PNG is rendered from the SVG beside it (`./brand/render.sh`). The brand brief is in
+[docs/BRAND.md](docs/BRAND.md).
