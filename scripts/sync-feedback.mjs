@@ -118,7 +118,7 @@ async function main() {
   const pct = (x) => `${Math.round((x / n) * 100)}%`;
 
   between('docs/FEEDBACK.md', 'feedback:log', [
-    `_${n} responses, synced ${date} from the Parity tester dataset (not the Google Form) by \`npm run feedback:sync\`. Raw export: [responses.csv](feedback/responses.csv)._`,
+    `_${n} responses from the Parity tester dataset ([responses.csv](feedback/responses.csv))._`,
     '',
     '| # | Wallet | Completed | Stuck / Confused | One Change | Ease | Date |',
     '|---|--------|-----------|------------------|------------|------|------|',

@@ -26,7 +26,7 @@ log, themes and Level 6 tables below plus the wallet lists in `USERS.md` / `LAUN
 Testers are identified by wallet address only — no names are collected or published.
 
 <!-- feedback:log:start -->
-_80 responses, synced 2026-09-18 from the Parity tester dataset (not the Google Form) by `npm run feedback:sync`. Raw export: [responses.csv](feedback/responses.csv)._
+_80 responses from the Parity tester dataset ([responses.csv](feedback/responses.csv))._
 
 | # | Wallet | Completed | Stuck / Confused | One Change | Ease | Date |
 |---|--------|-----------|------------------|------------|------|------|
