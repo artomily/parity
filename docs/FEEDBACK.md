@@ -2,6 +2,8 @@
 
 ## Feedback Collection Method
 
+- **Responses (Google Sheet):** [Parity — Tester Feedback responses](https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653)
+
 - **Form:** a 1-minute Google Form —
   [Parity — Tester Feedback](https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform) —
   linked from the landing page, the app (after every successful transaction), the site footer,

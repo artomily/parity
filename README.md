@@ -35,7 +35,9 @@ pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 | Level 6 | 20     |       | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
 | Total   | 70     | 81      |                                      |
 
-See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and the changes it drove.
+**User feedback (Google Sheet):** [Parity — Tester Feedback responses](https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653)
+
+See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the changes the feedback drove.
 
 ## What This Product Does
 
@@ -234,7 +236,9 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 ## Feedback & Iterations
 
-See [docs/FEEDBACK.md](docs/FEEDBACK.md).
+**User feedback Google Sheet:** https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653
+
+Change log: [docs/FEEDBACK.md](docs/FEEDBACK.md).
 
 Top changes from user feedback:
 
