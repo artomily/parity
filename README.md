@@ -8,6 +8,12 @@
 
 **https://parity-tech.vercel.app/**
 
+## User Feedback (Google Sheet)
+
+**https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653**
+
+81 tester responses from the Google Form (wallet address, completion, pain points, suggested change, ease rating).
+
 ## Demo Video
 
 **Watch it: https://youtu.be/luBz-gQ5mzI**
