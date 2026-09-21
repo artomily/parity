@@ -8,6 +8,12 @@
 
 **https://parity-tech.vercel.app/**
 
+## User Feedback (Google Sheet)
+
+**https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653**
+
+81 tester responses from the Google Form (wallet address, completion, pain points, suggested change, ease rating).
+
 ## Demo Video
 
 **Watch it: https://youtu.be/luBz-gQ5mzI**
@@ -35,7 +41,9 @@ pinned ledger version (`midnightntwrk/proof-server:8.1.0`).
 | Level 6 | 20     |       | [LAUNCH_USERS.md](LAUNCH_USERS.md)   |
 | Total   | 70     | 81      |                                      |
 
-See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the feedback log and the changes it drove.
+**User feedback (Google Sheet):** [Parity — Tester Feedback responses](https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653)
+
+See [docs/FEEDBACK.md](docs/FEEDBACK.md) for the changes the feedback drove.
 
 ## What This Product Does
 
@@ -234,19 +242,21 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 ## Feedback & Iterations
 
-See [docs/FEEDBACK.md](docs/FEEDBACK.md).
+**User feedback Google Sheet:** https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653
 
-Top changes planned from user feedback:
+Change log: [docs/FEEDBACK.md](docs/FEEDBACK.md).
+
+Top changes from user feedback:
 
 81 testers: 75% completed the full flow, 25% partly; average ease 4.64 / 5.
 
-| Change | Testers asking |
-|--------|----------------|
-| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 24 |
-| Clear submitted/confirmed states, a more prominent success banner, plainer confirmation wording | 17 |
-| Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 |
-| Waiting message that explains proof generation and expected time | 7 |
-| Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 |
+| Change | Testers asking | Status |
+|--------|----------------|--------|
+| Transaction stepper (Building proof → Approve in Lace → Submitted → Confirmed) with the full tx id | 24 | Done (9239cba) |
+| "Confirmed on Midnight Preprod" banner that says what changed and what to do next | 17 | Done (c78669d) |
+| Tooltips for Midnight terms, a clear call to action after each step, quick-start copy | 11 | Planned |
+| Waiting message per step: what is happening, usual duration, time elapsed | 7 | Done (c179197) |
+| Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 | Planned |
 
 Full breakdown in the Level 6 Improvements table in [docs/FEEDBACK.md](docs/FEEDBACK.md).
 

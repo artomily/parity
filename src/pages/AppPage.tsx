@@ -2,7 +2,27 @@ import { useMidnight } from "../hooks/useMidnight.js";
 import { Layout } from "../components/Layout.js";
 import { WalletConnect } from "../components/WalletConnect.js";
 import { PayrollFiling } from "../components/PayrollFiling.js";
-import { CONTRACT_ADDRESS, FAUCET_URL, FEEDBACK_URL, LACE_URL } from "../utils/network.js";
+import { TxStepper } from "../components/TxStepper.js";
+import { useState } from "react";
+import { CONTRACT_ADDRESS, FAUCET_URL, FEEDBACK_URL, LACE_URL, NETWORK_LABEL, shortHex } from "../utils/network.js";
+
+function CopyTxId({ txId }: { txId: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      className="ghost"
+      title={txId}
+      onClick={() =>
+        void navigator.clipboard.writeText(txId).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        })
+      }
+    >
+      {copied ? "Copied" : <>Copy tx <code>{shortHex(txId)}</code></>}
+    </button>
+  );
+}
 
 export function AppPage() {
   const m = useMidnight();
@@ -86,8 +106,8 @@ export function AppPage() {
           {m.busy && (
             <div className="banner busy" role="status">
               <span className="spinner" aria-hidden="true" />
-              {m.busy}
-              <em>Proof generation runs locally — your private inputs never leave this machine.</em>
+              <strong>{m.busy}</strong>
+              {m.progress && <TxStepper progress={m.progress} />}
             </div>
           )}
 
@@ -101,8 +121,13 @@ export function AppPage() {
           )}
 
           {m.lastResult && !m.busy && (
-            <div className="banner ok" role="status">
-              Submitted on-chain · <code>{m.lastResult.txId.slice(0, 24)}…</code>
+            <div className="banner ok success" role="status">
+              <span className="success-mark" aria-hidden="true">✓</span>
+              <div className="success-text">
+                <strong>Confirmed on {NETWORK_LABEL}</strong>
+                {m.progress && <span>{m.progress.outcome}</span>}
+              </div>
+              <CopyTxId txId={m.lastResult.txId} />
               <a className="button ghost" href={FEEDBACK_URL} target="_blank" rel="noreferrer">
                 Share feedback (1 min)
               </a>

@@ -2,6 +2,8 @@
 
 ## Feedback Collection Method
 
+- **Responses (Google Sheet):** [Parity — Tester Feedback responses](https://docs.google.com/spreadsheets/d/1F6iwAxAkxY0_KSK1Jo51GBfj4jb83xkct_0ZwKkPBno/edit?gid=1940241653)
+
 - **Form:** a 1-minute Google Form —
   [Parity — Tester Feedback](https://docs.google.com/forms/d/e/1FAIpQLSeG_2KelqXWlerN_GAhmxnIZ7KMss4zKMcx0fnVI8dYvtIJlw/viewform) —
   linked from the landing page, the app (after every successful transaction), the site footer,
@@ -158,8 +160,13 @@ _81 responses ([responses.csv](feedback/responses.csv))._
 
 ## What We Changed
 
+<!-- feedback:changed:start -->
 | Change | Reason | Commit |
 |--------|--------|--------|
+| Transaction stepper (Building proof → Approve in Lace → Submitted → Confirmed) with the full tx id | 24 testers asked for transaction status & progress visibility | 9239cba |
+| Explicit "Confirmed on Midnight Preprod" banner that says what changed and what to do next, with a copyable tx id | 17 testers asked for confirmation & success feedback | c78669d |
+| Waiting message for each step that explains what is happening, how long it usually takes and the time elapsed | 7 testers asked for loading / waiting-state clarity | c179197 |
+<!-- feedback:changed:end -->
 
 ## Level 6 Improvements
 
@@ -169,9 +176,9 @@ hit the same problem and how far it stopped them from finishing the flow.
 <!-- feedback:level6:start -->
 | Change | User Feedback That Triggered It | Status |
 |--------|--------------------------------|--------|
-| Explicit transaction stepper (Building proof → Submitted → Confirmed) with tx hash and explorer link | 24 testers — e.g. "Add a short progress indicator" | Planned |
-| Clear "Submitted" and "Confirmed" states, a more prominent success banner, plainer confirmation wording | 17 testers — e.g. "Add clearer confirmation messages" | Planned |
+| Transaction stepper (Building proof → Approve in Lace → Submitted → Confirmed) with the full tx id | 24 testers — e.g. "Add a short progress indicator" | Done (9239cba) |
+| Explicit "Confirmed on Midnight Preprod" banner that says what changed and what to do next, with a copyable tx id | 17 testers — e.g. "Add clearer confirmation messages" | Done (c78669d) |
 | Inline tooltips for Midnight terms, a clear call to action after each step, quick-start copy on the first screen | 11 testers — e.g. "Add a short onboarding guide" | Planned |
-| Replace the generic spinner with a waiting message that explains proof generation and expected time | 7 testers — e.g. "Make the loading state clearer" | Planned |
+| Waiting message for each step that explains what is happening, how long it usually takes and the time elapsed | 7 testers — e.g. "Make the loading state clearer" | Done (c179197) |
 | Descriptive button labels, stronger visual hierarchy, mobile spacing fixes | 7 testers — e.g. "Make buttons more descriptive" | Planned |
 <!-- feedback:level6:end -->
